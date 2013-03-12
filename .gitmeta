@@ -1,1 +1,4 @@
 .gitignore  mode=0644  uid=0  gid=0
+.gitmeta  mode=0644  uid=0  gid=0
+etc_original  mode=0755  uid=0  gid=0
+etc_original/fstab  mode=0644  uid=0  gid=0

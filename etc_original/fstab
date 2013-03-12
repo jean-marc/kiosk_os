@@ -1,0 +1,42 @@
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+/dev/sda5 swap swap default 0 0
+none	/tmp	tmpfs	defaults	0	0
+none	/home/user.rw	tmpfs	defaults,uid=user,gid=user	0	0
+none	/home/user aufs br=/home/user.rw=rw:/home/user=ro	0	0
+# we can still access original /home/user through /client/home/user, why is that???
+# it seems that all the mounts /client/* happen early
+
+#/etc /etc_original bind defaults,bind 0 0
+
+# union /etc_server+/etc=/etc
+#/etc/init/before_aufs_hook.conf will make sure /etc_original is mounted
+#none /etc aufs br=/etc_server=rw:/etc=ro 0 0
+
+# will be NFS exported 
+
+/bin /client/bin bind defaults,bind 0 0
+/boot /client/boot bind defaults,bind 0 0
+/dev /client/dev bind defaults,bind 0 0
+/etc_original /client/etc bind defaults,bind 0 0
+#unfortunately not exported by NFS3
+#none /client/etc aufs br=/etc_client=rw:/etc_original=ro 0 0
+#so we bind files instead, a bit awkward
+/etc_client/fstab /client/etc/fstab bind default,bind 0 0
+/etc_client/hostname /client/etc/hostname bind default,bind 0 0
+/etc_client/hosts /client/etc/hosts bind default,bind 0 0
+/home /client/home bind defaults,bind 0 0
+/lib /client/lib bind defaults,bind 0 0
+/lib64 /client/lib64 bind defaults,bind 0 0
+/opt /client/opt bind defaults,bind 0 0
+/root /client/root bind defaults,bind 0 0
+/sbin /client/sbin bind defaults,bind 0 0
+/selinux /client/selinux bind defaults,bind 0 0
+/srv /client/srv bind defaults,bind 0 0
+/sys /client/sys bind defaults,bind 0 0
+/usr /client/usr bind defaults,bind 0 0
+/var /client/var bind defaults,bind 0 0
+
