@@ -17,6 +17,9 @@ echo 'running init bottom!!!!!'
 echo "mounting ${rootmnt}/etc onto ${rootmnt}/etc_original"
 mount --bind -o rw "${rootmnt}/etc" "${rootmnt}/etc_original"
 
+echo "mounting ${rootmnt}/home/user onto ${rootmnt}/home/user.ro"
+mount --bind -o rw "${rootmnt}/home/user" "${rootmnt}/home/user.ro"
+
 #boot client only 
 if grep client /proc/cmdline > /dev/null; then
 	exit 0
