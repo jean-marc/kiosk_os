@@ -1,0 +1,26 @@
+#!/bin/sh
+# will create a union filesystem
+PREREQ=''
+
+prereqs(){
+	echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+	prereqs
+	exit 0
+	;;
+esac
+
+echo 'running init bottom!!!!!'
+echo "mounting ${rootmnt}/etc onto ${rootmnt}/etc_original"
+mount --bind -o rw "${rootmnt}/etc" "${rootmnt}/etc_original"
+
+#boot client only 
+if grep client /proc/cmdline > /dev/null; then
+	exit 0
+fi
+
+echo "union mounting ${rootmnt}/etc_server onto ${rootmnt}/etc"
+mount -t aufs -o "br=${rootmnt}/etc_server=rw:${rootmnt}/etc=ro" none "${rootmnt}/etc"
