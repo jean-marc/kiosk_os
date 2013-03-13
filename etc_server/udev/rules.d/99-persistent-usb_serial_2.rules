@@ -1,0 +1,1 @@
+SUBSYSTEMS=="usb", ATTRS{driver}=="pl2303", SYMLINK+="ts_45"
