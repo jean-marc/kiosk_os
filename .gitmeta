@@ -29,6 +29,8 @@ etc_server/network  mode=0755  uid=0  gid=0
 etc_server/network/interfaces  mode=0644  uid=0  gid=0
 etc_server/profile.d  mode=0755  uid=0  gid=0
 etc_server/profile.d/kiosk-parameters.sh  mode=0755  uid=0  gid=0
+etc_server/squid  mode=0755  uid=0  gid=0
+etc_server/squid/squidGuard.conf  mode=0644  uid=0  gid=13
 etc_server/squid3  mode=0755  uid=0  gid=0
 etc_server/squid3/squid.conf  mode=0644  uid=0  gid=0
 etc_server/udev/rules.d  mode=0755  uid=0  gid=0
