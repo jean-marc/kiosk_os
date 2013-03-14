@@ -3,9 +3,21 @@
 This document explains how to set-up server and clients for the rugged computer kiosk.
 Configuration files are tracked with git on https://github.com/jean-marc/kiosk_os . https://www.jottit.com/jg8h7/ documents how to maintain file permissions and ownership. 
 
-The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system. 
+The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system.
+
+The system can have two configurations decided at boot time (through kernel parameter 'client'), they rely on three extra directories:
+1. [/etc_original](/etc_original): common to client and server
+2. [/etc_server](/etc_server): specific to server (daemon configuration,...) 
+3. [/etc_client](/etc_client): specific to NFS-mounted clients
+
+1. client: no daemons (DHCP, Apache, ...),we  have ```/etc = /etc_original```.
+2. client + server: daemons are started, we have ```/etc = /etc_server + /etc_original```, where '+' means a union file system mount (/etc_server is mounted on top of /etc_original). Note: the client-only OS is still available at /client (it gets NFS-exported as defined in [/etc_server/exports](/etc_server/exports))
+
+The union mount takes place early in the boot process through a customized initrd.img created with the initramfs tool (see [/etc_original/initramfs-tools/scripts/init-bottom/server](/etc_original/initramfs-tools/scripts/init-bottom/server) and [/etc_original/initramfs-tools/hooks/server](/etc_original/initramfs-tools/hooks/server)).
+
 ##DHCP & TFTP
 [/etc_server/dnsmasq.conf](/etc_server/dnsmasq.conf)
+##Apache
 ##NFS
 [/etc_server/exports](/etc_server/exports)
 ##Proxy/Firewall
@@ -14,7 +26,7 @@ The server hosts the OS for the clients, so we only need to document the server 
 We use SquidGuard
 [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf)
 ##Client control
-Once the server is on it can start all the clients on the local interface through wake-on-LAN, it will also shut them down before going down.
+Once the server is on, it can start all the clients on the local interface through wake-on-LAN, it will also shut them down before going down.
 Wake-on-LAN is a low-level protocol, a machine will turn on if it receives a magic packet on an interface (it must be enable in the BIOS and there are other conditions).
 The server uses information stored by the DHCP server in /var/lib/misc/dnsmasq.leases to send magic packets to all the machines that have ever been given a lease (sending UDP packets takes almost no time so it is not such a waste), that means that a new client will have to be started manually.
 Shutting down a client is simpler, a simple SSH session is run to invoke poweroff.
@@ -58,7 +70,8 @@ A few files are needed to run the power management task:
 	this where global environment variables are defined including $CHARGE_CONTROLLER
 * crontab
 	the above script is run every 10 minutes: (the interval could be made longer)
-	*/10 * * * * /usr/local/bin/ts_45.sh; /usr/local/bin/udp_ping.sh
+	*/10 * * * * /usr/local/bin/ts_45.sh; 
+* [/usr/local/bin/udp_ping.sh](/usr/local/bin/udp_ping.sh] sends UDP messages to the monitoring server on expired MTN modems (see http://mbuya.unicefuganda.org/?p=642).
 Note: the script is also invoked by the remote monitoring task (see remote monitoring) and care must be taken they do not run a the same time.
 Note: names should be changed from 'ts_45' to something more generic
 
