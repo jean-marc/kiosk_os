@@ -28,6 +28,9 @@ iface eth0 inet static
 	#what about not going through squid when accessing local content?
 	post-up iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
 	post-down iptables -D PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
+	#HTTP traffic from this machine	
+	#post-up iptables -A OUTPUT -t nat -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
+	#post-down iptables -D OUTPUT -t nat -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
 # usb to ethernet
 iface eth1 inet dhcp
 	post-up iptables -A POSTROUTING -t nat -o eth1 -j MASQUERADE
