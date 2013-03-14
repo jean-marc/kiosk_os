@@ -32,15 +32,16 @@ We currently support two models: Morningstar TS-45 and Phocos C-40
 ###TS_45
 The TS 45 is a solar charger, it means that it does not keep track of the current going through the load, just the voltage. 
 need to install libmodbus, there does not seem to be .deb package so you have to build it, get the archive from http://libmodbus.org/download/, unpack, run 
+```
 	./configure 
 	make
 	sudo make install
 	sudo ldconfig
-
+```
 build the client (https://github.com/jean-marc/ts_mppt)
 
 ###Phocos
-The charge controller uses a TTL interface and requires a TTL-to-serial or TTL-to-USB adapter (eg. http://compare.ebay.com/like/251117477526?var=lv&ltyp=AllFixedPriceItemTypes&var=sbar&_lwgsi=y&cbt=y). The client is a python script (https://github.com/jean-marc/ts_mppt/blob/master/phocos.py)
+The charge controller uses a TTL interface and requires a TTL-to-serial or TTL-to-USB adapter (eg. [here](http://compare.ebay.com/like/251117477526?var=lv&ltyp=AllFixedPriceItemTypes&var=sbar&_lwgsi=y&cbt=y)). The client is a python script (https://github.com/jean-marc/ts_mppt/blob/master/phocos.py)
 
 A few files are needed to run the power management task:
 * [/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules](/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules)
@@ -69,5 +70,5 @@ Part of the monitoring task is to measure how much data is being used for Intern
 * [/usr/local/bin/safe_iptables.sh](/usr/local/bin/safe_iptables.sh)
 	script to read the counter
 * [/etc_server/sudoers.d/safe_iptables](/etc_server/sudoers.d/safe_iptables)
-	allows to run the above script without entering password (for remote monitoring), it will be invoked as sudo safe_iptables.sh
+	allows to run the above script without entering password (for remote monitoring), it will be invoked as ```sudo safe_iptables.sh```
 Counters get reset when machine is turned off.
