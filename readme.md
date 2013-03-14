@@ -1,7 +1,8 @@
 #Kiosk OS customization 
 ##Introduction
 This document explains how to set-up server and clients for the rugged computer kiosk.
-Configuration files are tracked with git on https://github.com/jean-marc/kiosk_os, https://www.jottit.com/jg8h7/ documents how to maintain file permissions and ownership. 
+Configuration files are tracked with git on https://github.com/jean-marc/kiosk_os . https://www.jottit.com/jg8h7/ documents how to maintain file permissions and ownership. 
+
 The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system. 
 ##DHCP & TFTP
 
@@ -18,10 +19,8 @@ The server uses information stored by the DHCP server in /var/lib/misc/dnsmasq.l
 Shutting down a client is simpler, a simple SSH session is run to invoke poweroff.
 
 The relevant files are:
-/var/lib/misc/dnsmasq.leases
-	that file is created by dnsmasq
-[a relative link](/etc_server/init.d/manage_client)
-	System-V type daemon, it reads from the DHCP lease list to turn on clients (or when invoked as /etc/init.d/manage_client start), it reads from the ARP list to shut them down (or when invoked as /etc/init.d/manage_client stop).
+* /var/lib/misc/dnsmasq.leases that file is created by dnsmasq
+* [/etc_server/init.d/manage_client](/etc_server/init.d/manage_client) System-V type daemon, it reads from the DHCP lease list to turn on clients (or when invoked as /etc/init.d/manage_client start), it reads from the ARP list to shut them down (or when invoked as /etc/init.d/manage_client stop).
 
 
 ##Power management
