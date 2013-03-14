@@ -5,10 +5,13 @@ Configuration files are tracked with git on https://github.com/jean-marc/kiosk_o
 
 The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system.
 
-The system can have two configurations decided at boot time (through kernel parameter 'client'), they rely on three extra directories:
+There are three extra /etc directories:
+
 1. [/etc_original](/etc_original): common to client and server
 2. [/etc_server](/etc_server): specific to server (daemon configuration,...) 
 3. [/etc_client](/etc_client): specific to NFS-mounted clients
+
+The system relies on the above to set up two different configurations decided at boot time (through kernel parameter 'client'):
 
 1. client: no daemons (DHCP, Apache, ...),we  have ```/etc = /etc_original```.
 2. client + server: daemons are started, we have ```/etc = /etc_server + /etc_original```, where '+' means a union file system mount (/etc_server is mounted on top of /etc_original). Note: the client-only OS is still available at /client (it gets NFS-exported as defined in [/etc_server/exports](/etc_server/exports))
