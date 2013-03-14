@@ -21,7 +21,7 @@ Shutting down a client is simpler, a simple SSH session is run to invoke powerof
 
 The relevant files are:
 * /var/lib/misc/dnsmasq.leases that file is created by dnsmasq
-* [/etc_server/init.d/manage_client](/etc_server/init.d/manage_client) System-V type daemon, it reads from the DHCP lease list to turn on clients (or when invoked as /etc/init.d/manage_client start), it reads from the ARP list to shut them down (or when invoked as /etc/init.d/manage_client stop).
+* [/etc_server/init.d/manage_client](/etc_server/init.d/manage_client) System-V type daemon, it reads from the DHCP lease list to turn on clients (or when invoked as ```/etc/init.d/manage_client start```), it reads from the ARP list to shut them down (or when invoked as ```/etc/init.d/manage_client stop```).
 
 
 ##Power management
@@ -45,15 +45,17 @@ The charge controller uses a TTL interface and requires a TTL-to-serial or TTL-t
 A few files are needed to run the power management task:
 * [/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules](/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules)
 	it will create a symbolic link to the USB device eg:
+	```
 	$ ls -l /dev/ts_45 
 	lrwxrwxrwx 1 root root 7 2013-03-08 16:51 /dev/ts_45 -> ttyUSB0
+	```
 * [/usr/local/bin/ts_45.sh](/usr/local/bin/ts_45.sh)
 * [/usr/local/bin/ts_45.awk](/usr/local/bin/ts_45.awk)
 * /var/log/ts_45.log
 	invokes the program defined in $CHARGE_CONTROLLER and filter it with the awk script and writes to the log file. It will trigger a shutdown if the voltage is below $LOW_VOLTAGE_DISCONNECT_12 or $LOW_VOLTAGE_DISCONNECT_24 (the actual variable is picked depending on current voltage)
-*[/etc_server/profile.d/kiosk_parameters.sh](/etc_server/profile.d/kiosk_parameters.sh)
+* [/etc_server/profile.d/kiosk_parameters.sh](/etc_server/profile.d/kiosk_parameters.sh)
 	this where global environment variables are defined including $CHARGE_CONTROLLER
-*crontab
+* crontab
 	the above script is run every 10 minutes: (the interval could be made longer)
 	*/10 * * * * /usr/local/bin/ts_45.sh; /usr/local/bin/udp_ping.sh
 Note: the script is also invoked by the remote monitoring task (see remote monitoring) and care must be taken they do not run a the same time.
@@ -62,10 +64,10 @@ Note: names should be changed from 'ts_45' to something more generic
 ##Traffic accounting
 
 Part of the monitoring task is to measure how much data is being used for Internet access, a few files are necessary:
-*[/etc_server/init/traffic_accounting.conf](/etc_server/init/traffic_accounting.conf)
+* [/etc_server/init/traffic_accounting.conf](/etc_server/init/traffic_accounting.conf)
 	set up a few rules to capture traffic going out, management traffic (to and from 196.0.26.0/24) is separated from the rest. An environment variable $NET defines the interface used to access the Internet (eg. ppp0 for USB modem, eth0 for Ethernet) (see http://mbuya.unicefuganda.org/?p=703)
-*[/usr/local/bin/safe_iptables.sh](/usr/local/bin/safe_iptables.sh)
+* [/usr/local/bin/safe_iptables.sh](/usr/local/bin/safe_iptables.sh)
 	script to read the counter
-*[/etc_server/sudoers.d/safe_iptables](/etc_server/sudoers.d/safe_iptables)
+* [/etc_server/sudoers.d/safe_iptables](/etc_server/sudoers.d/safe_iptables)
 	allows to run the above script without entering password (for remote monitoring), it will be invoked as sudo safe_iptables.sh
 Counters get reset when machine is turned off.
