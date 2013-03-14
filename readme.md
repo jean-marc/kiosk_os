@@ -21,6 +21,11 @@ The union mount takes place early in the boot process through a customized initr
 ##DHCP & TFTP
 [/etc_server/dnsmasq.conf](/etc_server/dnsmasq.conf)
 ##Apache
+There are two virtual hosts:
+
+1. [/etc_server/apache2/sites-available/content.unicefuganda.org](/etc_server/apache2/sites-available/content.unicefuganda.org)
+2. [/etc_server/apache2/sites-available/wikipedia.unicefuganda.org](/etc_server/apache2/sites-available/wikipedia.unicefuganda.org), a proxy for the kiwix server, listening on port 1080 (see [/etc_server/init/kiwix-serve.conf](/etc_server/init/kiwix-serve.conf)).
+
 ##NFS
 [/etc_server/exports](/etc_server/exports)
 ##Proxy/Firewall
