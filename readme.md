@@ -1,7 +1,7 @@
 #Kiosk OS customization 
 ##Introduction
 This document explains how to set-up server and clients for the rugged computer kiosk.
-Configuration files are tracked with git on https://github.com/jean-marc/kiosk_os . https://www.jottit.com/jg8h7/ documents how to maintain file permissions and ownership. 
+Configuration files are tracked with git on https://github.com/jean-marc/kiosk_os . Special hooks (note: they do not get copied when cloning a repository) need to be added to git to maintain file permission and ownership (is the file executable?...), see https://www.jottit.com/jg8h7/, the meta-data is saved in [/.gitmeta](/.gitmeta). 
 
 The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system.
 
