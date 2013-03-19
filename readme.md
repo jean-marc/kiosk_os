@@ -26,6 +26,17 @@ There are two virtual hosts:
 1. [/etc_server/apache2/sites-available/content.unicefuganda.org](/etc_server/apache2/sites-available/content.unicefuganda.org)
 2. [/etc_server/apache2/sites-available/wikipedia.unicefuganda.org](/etc_server/apache2/sites-available/wikipedia.unicefuganda.org), a proxy for the kiwix server, listening on port 1080 (see [/etc_server/init/kiwix-serve.conf](/etc_server/init/kiwix-serve.conf)).
 
+###Wikipedia
+The offline wikipedia uses the [kiwix](http://kiwix.org/wiki/Main_Page) server, relevant files are:
+
+* [/etc_server/init/kiwix-serve.conf](/etc_server/init/kiwix-serve.conf) upstart script to start the daemon, the server listens on port 1080 and is proxied by apache.
+* /usr/local/bin/kiwix-serve the daemon
+* /usr/local/bin/kiwix-index to generate the index
+* /var/lib/kiwix/latest.zim a symbolic link to the latest archive, available at http://kiwix.org/wiki/Wikipedia_in_all_languages
+* /var/lib/kiwix/index/	 contains a database used by the search engine, it is generated from the archive
+
+###Content Portal
+
 ##NFS
 [/etc_server/exports](/etc_server/exports)
 ##Proxy/Firewall
