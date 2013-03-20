@@ -20,6 +20,7 @@ The union mount takes place early in the boot process through a customized initr
 
 ##DHCP & TFTP
 [/etc_server/dnsmasq.conf](/etc_server/dnsmasq.conf)
+
 ##Apache
 There are two virtual hosts:
 
@@ -39,15 +40,19 @@ The offline wikipedia uses the [kiwix](http://kiwix.org/wiki/Main_Page) server, 
 
 ##NFS
 [/etc_server/exports](/etc_server/exports)
+
 ##Proxy/Firewall
 [/etc_server/network/interfaces](/etc_server/network/interfaces)
+
 ##HTTP filter
 We use a combination of Squid and SquidGuard and some iptable rules to redirect HTTP traffic to Squid, there is currently a problem on the server machine as outgoing HTTP traffic is not caught by Squid (more work needed). 
 * [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf)
 * [/etc_server/network/interfaces](/etc_server/network/interfaces)
+
 ##Webalizer
 The report (eg. http://ssh.unicefuganda.org/webalizer/) is updated everyday based on the Squid log file (becauses it caches all HTTP requests).
 * [/etc_server/webalizer/webalizer.conf](/etc_server/webalizer/webalizer.conf)
+
 ##VPN
 As soon as a connection to the Internet is available, the kiosk connects to a VPN server (http://ssh.unicefuganda.org) and joins a virtual network using a unique certificate.
 
