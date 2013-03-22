@@ -54,12 +54,26 @@ The report (eg. http://ssh.unicefuganda.org/webalizer/) is updated everyday base
 * [/etc_server/webalizer/webalizer.conf](/etc_server/webalizer/webalizer.conf)
 
 ##VPN
-As soon as a connection to the Internet is available, the kiosk connects to a VPN server (http://ssh.unicefuganda.org) and joins a virtual network using a unique certificate.
+As soon as a connection to the Internet is available, the kiosk connects to a VPN server (http://ssh.unicefuganda.org) and joins a virtual network using a unique certificate. The central server can easily connect to any on-line kiosk and run a SSH session (after public key exchange), kiosks can also bypass the server and talk to each other. 
 
 * [/etc_server/openvpn/client.conf](/etc_server/openvpn/client.conf)
 * /etc_server/openvpn/kiosk.crt
 * /etc_server/openvpn/kiosk.csr
 * /etc_server/openvpn/kiosk.key
+
+An alternate scheme could use the same certificate on all kiosks, the server would have to identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database:
+```xml
+<inv:Server rdf:ID="96344">
+	<inv:time_stamp_v>2013-03-08T21:31:58</inv:time_stamp_v>
+	<inv:time_stamp>1362767518</inv:time_stamp>
+	<inv:partOf rdf:resource="#uniport-0"/>
+	<inv:model rdf:resource="#D2"/>
+	<inv:status>1</inv:status>
+	<inv:_mac_>3018ac5fed</inv:_mac_>
+</inv:Server>
+```
+The above snippet indicates that the server with MAC address 3018ac5fed is part of 'uniport-0'. The advantage of that scheme is that all kiosks would be running exactly the same OS (same hostname, VPN certificats,...) and would make deployment and update easier.
+
 
 ##Client control
 Once the server is on, it can start all the clients on the local interface through wake-on-LAN, it will also shut them down before going down.
