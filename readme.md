@@ -61,7 +61,7 @@ As soon as a connection to the Internet is available, the kiosk connects to a VP
 * /etc_server/openvpn/kiosk.csr
 * /etc_server/openvpn/kiosk.key
 
-An alternate scheme could use the same certificate on all kiosks, the server would have to identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database (http://inventory.unicefuganda.org/sparql?query=describe <96344>):
+An alternate scheme could use the same certificate on all kiosks, the server would have to identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database (http://inventory.unicefuganda.org/sparql?query=describe%20%3C96344%3E):
 ```xml
 <inv:Server rdf:ID="96344">
 	<inv:time_stamp_v>2013-03-08T21:31:58</inv:time_stamp_v>
