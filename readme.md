@@ -61,7 +61,7 @@ As soon as a connection to the Internet is available, the kiosk connects to a VP
 * /etc_server/openvpn/kiosk.csr
 * /etc_server/openvpn/kiosk.key
 
-An alternate scheme could use the same certificate on all kiosks, the server would have to identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database:
+An alternate scheme could use the same certificate on all kiosks, the server would have to identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database (http://inventory.unicefuganda.org/sparql?query=describe <96344>):
 ```xml
 <inv:Server rdf:ID="96344">
 	<inv:time_stamp_v>2013-03-08T21:31:58</inv:time_stamp_v>
@@ -135,3 +135,16 @@ Part of the monitoring task is to measure how much data is being used for Intern
 * [/etc_server/sudoers.d/safe_iptables](/etc_server/sudoers.d/safe_iptables)
 	allows to run the above script without entering password (for remote monitoring), it will be invoked as ```sudo safe_iptables.sh```
 Counters get reset when machine is turned off.
+
+##Client file system
+
+All the clients see the same file system with some slight variations when network-mounted:
+
+* [/etc_original/fstab](/etc_original/fstab)
+* [/etc_client/fstab](/etc_client/fstab)
+
+A [tmpfs](http://en.wikipedia.org/wiki/Tmpfs) file system is union-mounted on top of the /home/user directory, this makes possible to set up default configurations eg. home pages for browser while allowing the user to make temporary modifications, all changes will be lost once the machine reboots. The reason for that design decision is to guarantee system stability, the downside is the inability to save any file except on external storage (USB stick, cellphone) and increased RAM used (the clients should use swap space unless there is no hard-drive).
+Based on user s feedback we will create new regular accounts without the above limitations (that creates other problems if the same account is used on different machines). 
+Note that unicef_admin is a regular account but is reserved for administration.
+
+
