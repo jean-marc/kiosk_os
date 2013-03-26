@@ -27,6 +27,8 @@ etc_server/init/kiwix-serve.conf  mode=0644  uid=0  gid=0
 etc_server/init/traffic_accounting.conf  mode=0644  uid=0  gid=0
 etc_server/network  mode=0755  uid=0  gid=0
 etc_server/network/interfaces  mode=0644  uid=0  gid=0
+etc_server/openvpn  mode=0755  uid=0  gid=0
+etc_server/openvpn/client.conf  mode=0644  uid=0  gid=0
 etc_server/profile.d  mode=0755  uid=0  gid=0
 etc_server/profile.d/kiosk-parameters.sh  mode=0755  uid=0  gid=0
 etc_server/squid  mode=0755  uid=0  gid=0
