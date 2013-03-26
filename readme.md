@@ -3,6 +3,21 @@
 This document explains how to set-up server and clients for the rugged computer kiosk.
 Configuration files are tracked with git on https://github.com/jean-marc/kiosk_os . Special hooks (note: they do not get copied when cloning a repository) need to be added to git to maintain file permission and ownership (is the file executable?...), see https://www.jottit.com/jg8h7/, the meta-data is saved in [/.gitmeta](/.gitmeta). 
 
+Having the configuration under source control offers several advantages:
+
+* get a log of all the modifications (similar to /etc/kiosk-notes) and the current version (actually the last commit), eg: 
+```
+git log
+commit d728f3d4b881652e264cae6a8c62ae703f3305ec
+Author: Jean-Marc Lefébure <lefebure.jeanmarc@gmail.com>
+Date:   Sat Mar 23 20:36:46 2013 +0300
+
+	some message...
+``` 
+* query the version remotely (through VPN) so we can populate our management database with up-to-date information
+* update OS with ```git pull``` (note we could also do a blank file synchronization with rsync as long as we include /.git)
+* we could create new branches to run tests and merge in the main branch if successful 
+
 The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system.
 
 There are three extra /etc directories:
@@ -61,7 +76,7 @@ As soon as a connection to the Internet is available, the kiosk connects to a VP
 * /etc_server/openvpn/kiosk.csr
 * /etc_server/openvpn/kiosk.key
 
-An alternate scheme could use the same certificate on all kiosks, the server would have to identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database [http://inventory.unicefuganda.org/sparql?query=describe <96344>](http://inventory.unicefuganda.org/sparql?query=describe%20%3C96344%3E ):
+An alternate scheme could use the same certificate on all kiosks, the server would have to identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database [http://inventory.unicefuganda.org/sparql?query=describe &lt;96344&gt;](http://inventory.unicefuganda.org/sparql?query=describe%20%3C96344%3E ):
 ```xml
 <inv:Server rdf:ID="96344">
 	<inv:time_stamp_v>2013-03-08T21:31:58</inv:time_stamp_v>
@@ -144,7 +159,7 @@ All the clients see the same file system with some slight variations when networ
 * [/etc_client/fstab](/etc_client/fstab)
 
 A [tmpfs](http://en.wikipedia.org/wiki/Tmpfs) file system is union-mounted on top of the /home/user directory, this makes possible to set up default configurations eg. home pages for browser while allowing the user to make temporary modifications, all changes will be lost once the machine reboots. The reason for that design decision is to guarantee system stability, the downside is the inability to save any file except on external storage (USB stick, cellphone) and increased RAM used (the clients should use swap space unless there is no hard-drive).
-Based on user s feedback we will create new regular accounts without the above limitations (that creates other problems if the same account is used on different machines). 
+Based on user s feedback we will create new regular accounts without the above limitations (that creates other problems if the same account is used on different machines at the same time). 
 Note that unicef_admin is a regular account but is reserved for administration.
 
 
