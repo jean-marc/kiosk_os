@@ -22,6 +22,8 @@ etc_server/apache2/sites-available/content.unicefuganda.org  mode=0644  uid=0  g
 etc_server/apache2/sites-available/wikipedia.unicefuganda.org  mode=0644  uid=0  gid=0
 etc_server/dnsmasq.conf  mode=0644  uid=0  gid=0
 etc_server/exports  mode=0644  uid=0  gid=0
+etc_server/hostname  mode=0644  uid=0  gid=0
+etc_server/hosts  mode=0644  uid=0  gid=0
 etc_server/init  mode=0755  uid=0  gid=0
 etc_server/init/kiwix-serve.conf  mode=0644  uid=0  gid=0
 etc_server/init/traffic_accounting.conf  mode=0644  uid=0  gid=0
