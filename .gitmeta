@@ -14,6 +14,8 @@ etc_original/initramfs-tools/hooks/server  mode=0755  uid=0  gid=0
 etc_original/initramfs-tools/scripts/init-bottom  mode=0755  uid=0  gid=0
 etc_original/initramfs-tools/scripts  mode=0755  uid=0  gid=0
 etc_original/initramfs-tools/scripts/init-bottom/server  mode=0755  uid=0  gid=0
+etc_original/network  mode=0755  uid=0  gid=0
+etc_original/network/interfaces  mode=0644  uid=0  gid=0
 etc_original/resolv.conf  mode=0644  uid=0  gid=0
 etc_server/apache2/sites-available  mode=0755  uid=0  gid=0
 etc_server/apache2  mode=0755  uid=0  gid=0
