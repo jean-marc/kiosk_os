@@ -37,9 +37,13 @@ etc_server/squid  mode=0755  uid=0  gid=0
 etc_server/squid/squidGuard.conf  mode=0644  uid=0  gid=13
 etc_server/squid3  mode=0755  uid=0  gid=0
 etc_server/squid3/squid.conf  mode=0644  uid=0  gid=0
+etc_server/sudoers.d  mode=0755  uid=0  gid=0
+etc_server/sudoers.d/safe_iptables  mode=0440  uid=0  gid=0
 etc_server/udev/rules.d  mode=0755  uid=0  gid=0
 etc_server/udev  mode=0755  uid=0  gid=0
 etc_server/udev/rules.d/99-persistent-usb_serial_2.rules  mode=0644  uid=0  gid=0
+etc_server/webalizer  mode=0755  uid=0  gid=0
+etc_server/webalizer/webalizer.conf  mode=0644  uid=0  gid=0
 readme.md  mode=0644  uid=0  gid=0
 usr/local/bin  mode=0755  uid=0  gid=0
 usr/local  mode=0755  uid=0  gid=0
