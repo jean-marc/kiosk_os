@@ -80,10 +80,8 @@ An alternate scheme could use the same certificate on all kiosks, the server wou
 ```xml
 <inv:Server rdf:ID="96344">
 	<inv:time_stamp_v>2013-03-08T21:31:58</inv:time_stamp_v>
-	<inv:time_stamp>1362767518</inv:time_stamp>
 	<inv:partOf rdf:resource="#uniport-0"/>
 	<inv:model rdf:resource="#D2"/>
-	<inv:status>1</inv:status>
 	<inv:_mac_>3018ac5fed</inv:_mac_>
 </inv:Server>
 ```
@@ -139,6 +137,7 @@ A few files are needed to run the power management task:
 * [/usr/local/bin/udp_ping.sh](/usr/local/bin/udp_ping.sh] sends UDP messages to the monitoring server on expired MTN modems (see http://mbuya.unicefuganda.org/?p=642).
 Note: the script is also invoked by the remote monitoring task (see remote monitoring) and care must be taken they do not run a the same time.
 Note: names should be changed from 'ts_45' to something more generic
+User 'unicef_admin' should be part of group 'dialout' to be allowed to open the device.
 
 ##Traffic accounting
 
