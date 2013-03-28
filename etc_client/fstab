@@ -5,6 +5,7 @@
 # that works even if disks are added and removed. See fstab(5).
 #
 # <file system> <mount point>   <type>  <options>       <dump>  <pass>
+/dev/sda5 swap swap default 0 0
 none	/home/user.rw	tmpfs	defaults,uid=user,gid=user	0	0
 none	/home/user aufs br=/home/user.rw=rw:/home/user=ro	0	0
 none	/tmp	tmpfs	defaults	0	0
