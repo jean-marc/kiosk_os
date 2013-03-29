@@ -5,7 +5,20 @@
 auto lo
 iface lo inet loopback
 
-# The primary network interface
+# The local network
+auto eth0
+iface eth0 inet static
+	address 192.168.4.1
+	network 192.168.4.0 
+	netmask 255.255.255.0
+	broadcast 192.168.4.255
+	#HTTP traffic from LAN
+	post-up iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
+	post-down iptables -D PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
+	#HTTP traffic from this machine	
+	post-up iptables -A OUTPUT -t nat -p tcp --dport 80 -m owner ! --uid-owner proxy -j DNAT --to 192.168.4.1:3128
+	post-down iptables -D OUTPUT -t nat -p tcp --dport 80 -m owner ! --uid-owner proxy -j DNAT --to 192.168.4.1:3128
+
 #auto eth0:0
 iface eth0:0 inet static
 	address 10.11.6.99
@@ -17,20 +30,6 @@ iface eth0:0 inet static
 	post-up iptables -A POSTROUTING -t nat -o eth0:0 -j MASQUERADE
 	post-down iptables -D POSTROUTING -t nat -o eth0:0 -j MASQUERADE
 
-# The local network
-auto eth0
-iface eth0 inet static
-	address 192.168.4.1
-	network 192.168.4.0 
-	netmask 255.255.255.0
-	broadcast 192.168.4.255
-	#set up squid
-	#what about not going through squid when accessing local content?
-	post-up iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
-	post-down iptables -D PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
-	#HTTP traffic from this machine	
-	post-up iptables -A OUTPUT -t nat -p tcp --dport 80 -m owner ! --uid-owner proxy -j DNAT --to 192.168.4.1:3128
-	post-down iptables -D OUTPUT -t nat -p tcp --dport 80 -m owner ! --uid-owner proxy -j DNAT --to 192.168.4.1:3128
 # usb to ethernet
 auto eth1
 iface eth1 inet dhcp
@@ -38,8 +37,6 @@ iface eth1 inet dhcp
 	post-down iptables -D POSTROUTING -t nat -o eth1 -j MASQUERADE
 
 # dongle
-# how to support more than one provider, it seems only the APN varies from one provider to the next
-
 #allow-hotplug ppp0
 #auto ppp0
 iface ppp0 inet ppp
