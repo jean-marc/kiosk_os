@@ -14,6 +14,7 @@ Date:   Sat Mar 23 20:36:46 2013 +0300
 
 	some message...
 ``` 
+
 * query the version remotely (through VPN) so we can populate our management database with up-to-date information
 * update OS with ```git pull``` (note we could also do a blank file synchronization with rsync as long as we include /.git)
 * we could create new branches to run tests and merge in the main branch if successful 
@@ -34,7 +35,10 @@ The system relies on the above to set up two different configurations decided at
 The union mount takes place early in the boot process through a customized initrd.img created with the initramfs tool (see [/etc_original/initramfs-tools/scripts/init-bottom/server](/etc_original/initramfs-tools/scripts/init-bottom/server) and [/etc_original/initramfs-tools/hooks/server](/etc_original/initramfs-tools/hooks/server)).
 
 ##DHCP & TFTP
-[/etc_server/dnsmasq.conf](/etc_server/dnsmasq.conf)
+Dnsmasq is used as a DHCP- and TFTP-server to send initrd.img for network boot.
+
+* [/etc_server/dnsmasq.conf](/etc_server/dnsmasq.conf)
+* [/var/ftpd/pxelinux.cfg/default](/var/ftpd/pxelinux.cfg/default)
 
 ##Apache
 There are two virtual hosts:
@@ -52,31 +56,36 @@ The offline wikipedia uses the [kiwix](http://kiwix.org/wiki/Main_Page) server, 
 * /var/lib/kiwix/index/	 contains a database used by the search engine, it is generated from the archive
 
 ###Content Portal
-
+The content portal is a mirror of http://content.unicefuganda.org.
 ##NFS
+The server exports a large subset of its file system on the local network (192.168.4.0/24) through NFS.
 [/etc_server/exports](/etc_server/exports)
+Note that booting clients is pretty taxing on the NFS server (for some reason booting an NL2 client:~30s is faster than NL3:~120s, there might be some problem on the client side) and can cause failures if booting more than one client at a time, the script [/etc_server/init.d/manage_client](/etc_server/init.d/manage_client) has been modified to stagger the boots and minimize the load (it might be good to delete /var/lib/misc/dsmasq.leases on a new set).
 
 ##Proxy/Firewall
 [/etc_server/network/interfaces](/etc_server/network/interfaces)
 
 ##HTTP filter
-We use a combination of Squid and SquidGuard and some iptable rules to redirect HTTP traffic to Squid, there is currently a problem on the server machine as outgoing HTTP traffic is not caught by Squid (more work needed). 
-* [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf)
-* [/etc_server/network/interfaces](/etc_server/network/interfaces)
+We use a combination of caching-proxy server Squid (www.squid-cache.org) and filter SquidGuard (www.squidguard.org) and some iptable rules to redirect HTTP traffic to Squid. 
+
+* [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf), 
+* /usr/local/squid/var/cache/squid the squid cache, note that content.unicefuganda.org and wikipedia.unicefuganda.org are excluded from the cache because thoses sites are hosted locally (it should always cause a 'TCP_MISS' in /var/log/squid3/access.log)
+* [/etc_server/network/interfaces](/etc_server/network/interfaces), note the use of '--uid-owner' to filter the HTTP traffic leaving the server
 
 ##Webalizer
 The report (eg. http://ssh.unicefuganda.org/webalizer/) is updated everyday based on the Squid log file (becauses it caches all HTTP requests).
+
 * [/etc_server/webalizer/webalizer.conf](/etc_server/webalizer/webalizer.conf)
 
 ##VPN
 As soon as a connection to the Internet is available, the kiosk connects to a VPN server (http://ssh.unicefuganda.org) and joins a virtual network using a unique certificate. The central server can easily connect to any on-line kiosk and run a SSH session (after public key exchange), kiosks can also bypass the server and talk to each other. 
 
+* /etc_server/openvpn/ca.crt
 * [/etc_server/openvpn/client.conf](/etc_server/openvpn/client.conf)
-* /etc_server/openvpn/kiosk.crt
-* /etc_server/openvpn/kiosk.csr
-* /etc_server/openvpn/kiosk.key
+* /etc_server/openvpn/kiosk-generic.crt
+* /etc_server/openvpn/kiosk-generic.key
 
-An alternate scheme could use the same certificate on all kiosks, the server would have to identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database [http://inventory.unicefuganda.org/sparql?query=describe &lt;96344&gt;](http://inventory.unicefuganda.org/sparql?query=describe%20%3C96344%3E ):
+The same certificate on all kiosks, the server will identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database [http://inventory.unicefuganda.org/sparql?query=describe &lt;96344&gt;](http://inventory.unicefuganda.org/sparql?query=describe%20%3C96344%3E ):
 ```xml
 <inv:Server rdf:ID="96344">
 	<inv:time_stamp_v>2013-03-08T21:31:58</inv:time_stamp_v>
@@ -85,18 +94,19 @@ An alternate scheme could use the same certificate on all kiosks, the server wou
 	<inv:_mac_>3018ac5fed</inv:_mac_>
 </inv:Server>
 ```
-The above snippet indicates that the server with MAC address 3018ac5fed is part of 'uniport-0'. The advantage of that scheme is that all kiosks would be running exactly the same OS (same hostname, VPN certificats,...) and would make deployment and update easier.
+The above snippet indicates that the server with MAC address 3018ac5fed is part of 'uniport-0'. The advantage of that scheme is that all kiosks run exactly the same OS (same hostname, VPN certificats,...) and makes deployment and update easier.
 
 
 ##Client control
 Once the server is on, it can start all the clients on the local interface through wake-on-LAN, it will also shut them down before going down.
 Wake-on-LAN is a low-level protocol, a machine will turn on if it receives a magic packet on an interface (it must be enable in the BIOS and there are other conditions).
 The server uses information stored by the DHCP server in /var/lib/misc/dnsmasq.leases to send magic packets to all the machines that have ever been given a lease (sending UDP packets takes almost no time so it is not such a waste), that means that a new client will have to be started manually.
-Shutting down a client is simpler, a simple SSH session is run to invoke poweroff.
+Shutting down a client is simpler, a simple SSH session is run to invoke poweroff. (note: some NL3 some time reboot instead of shutting down on receiving a 'poweroff' command, to be investigated).
 
 The relevant files are:
+
 * /var/lib/misc/dnsmasq.leases that file is created by dnsmasq
-* [/etc_server/init.d/manage_client](/etc_server/init.d/manage_client) System-V type daemon, it reads from the DHCP lease list to turn on clients (or when invoked as ```/etc/init.d/manage_client start```), it reads from the ARP list to shut them down (or when invoked as ```/etc/init.d/manage_client stop```).
+* [/etc_server/init.d/manage_client](/etc_server/init.d/manage_client) reads from the DHCP lease list to turn on clients (or when invoked as ```/etc/init.d/manage_client start```), it reads from the ARP list to shut them down (or when invoked as ```/etc/init.d/manage_client stop```). That script gets installed by running ```update-rc.d manage_client defaults``` (alternatively we could use an upstart job).
 
 
 ##Power management
@@ -119,22 +129,20 @@ build the client (https://github.com/jean-marc/ts_mppt)
 The charge controller uses a TTL interface and requires a TTL-to-serial or TTL-to-USB adapter (eg. [here](http://compare.ebay.com/like/251117477526?var=lv&ltyp=AllFixedPriceItemTypes&var=sbar&_lwgsi=y&cbt=y)). The client is a python script (https://github.com/jean-marc/ts_mppt/blob/master/phocos.py)
 
 A few files are needed to run the power management task:
+
 * [/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules](/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules)
 	it will create a symbolic link to the USB device eg:
 	```
 	$ ls -l /dev/ts_45 
 	lrwxrwxrwx 1 root root 7 2013-03-08 16:51 /dev/ts_45 -> ttyUSB0
 	```
-* [/usr/local/bin/ts_45.sh](/usr/local/bin/ts_45.sh)
+* [/usr/local/bin/ts_45.sh](/usr/local/bin/ts_45.sh) invokes the program defined in $CHARGE_CONTROLLER and filter it with the awk script and writes to the log file. It will trigger a shutdown if the voltage is below $LOW_VOLTAGE_DISCONNECT_12 or $LOW_VOLTAGE_DISCONNECT_24 (the actual variable is picked depending on current voltage)
 * [/usr/local/bin/ts_45.awk](/usr/local/bin/ts_45.awk)
 * /var/log/ts_45.log
-	invokes the program defined in $CHARGE_CONTROLLER and filter it with the awk script and writes to the log file. It will trigger a shutdown if the voltage is below $LOW_VOLTAGE_DISCONNECT_12 or $LOW_VOLTAGE_DISCONNECT_24 (the actual variable is picked depending on current voltage)
 * [/etc_server/profile.d/kiosk_parameters.sh](/etc_server/profile.d/kiosk_parameters.sh)
 	this where global environment variables are defined including $CHARGE_CONTROLLER
-* crontab
-	the above script is run every 10 minutes: (the interval could be made longer)
-	*/10 * * * * /usr/local/bin/ts_45.sh; 
-* [/usr/local/bin/udp_ping.sh](/usr/local/bin/udp_ping.sh] sends UDP messages to the monitoring server on expired MTN modems (see http://mbuya.unicefuganda.org/?p=642).
+* crontab the above script is run every 10 minutes: (the interval could be made longer) */10 * * * * /usr/local/bin/ts_45.sh; 
+* [/usr/local/bin/udp_ping.sh](/usr/local/bin/udp_ping.sh) sends UDP messages to the monitoring server on expired MTN modems (see http://mbuya.unicefuganda.org/?p=642).
 Note: the script is also invoked by the remote monitoring task (see remote monitoring) and care must be taken they do not run a the same time.
 Note: names should be changed from 'ts_45' to something more generic
 User 'unicef_admin' should be part of group 'dialout' to be allowed to open the device.
@@ -142,6 +150,7 @@ User 'unicef_admin' should be part of group 'dialout' to be allowed to open the 
 ##Traffic accounting
 
 Part of the monitoring task is to measure how much data is being used for Internet access, a few files are necessary:
+
 * [/etc_server/init/traffic_accounting.conf](/etc_server/init/traffic_accounting.conf)
 	set up a few rules to capture traffic going out, management traffic (to and from 196.0.26.0/24) is separated from the rest. An environment variable $NET defines the interface used to access the Internet (eg. ppp0 for USB modem, eth0 for Ethernet) (see http://mbuya.unicefuganda.org/?p=703)
 * [/usr/local/bin/safe_iptables.sh](/usr/local/bin/safe_iptables.sh)
