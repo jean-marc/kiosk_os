@@ -1,0 +1,14 @@
+DEFAULT menu.c32
+TIMEOUT 10
+ONTIMEOUT client
+MENU TITLE PXE Network Boot
+
+LABEL client
+	KERNEL vmlinuz
+	APPEND root=/dev/nfs netboot=nfs nfsroot=192.168.4.1:/client initrd=initrd.img ip=dhcp nomodeset rw
+
+LABEL localboot
+	MENU LABEL ^Local Boot (from CD or Hard Disk)
+	LOCALBOOT 0
+	TIMEOUT 10
+

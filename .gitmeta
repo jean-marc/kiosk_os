@@ -55,6 +55,9 @@ usr/local  mode=0755  uid=0  gid=0
 usr  mode=0755  uid=0  gid=0
 usr/local/bin/safe_iptables.sh  mode=0755  uid=0  gid=0
 usr/local/bin/ts_45.sh  mode=0755  uid=0  gid=0
-var/www  mode=0755  uid=0  gid=0
+var/ftpd/pxelinux.cfg  mode=0755  uid=0  gid=0
+var/ftpd  mode=0755  uid=0  gid=0
 var  mode=0755  uid=0  gid=0
+var/ftpd/pxelinux.cfg/default  mode=0644  uid=0  gid=0
+var/www  mode=0755  uid=0  gid=0
 var/www/blocked  mode=0644  uid=0  gid=0
