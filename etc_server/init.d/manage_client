@@ -1,0 +1,73 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:		
+# Required-Start:	
+# Required-Stop:	
+# Default-Start:	2 3 4 5
+# Default-Stop:		
+# Short-Description:	start and stop clients
+### END INIT INFO
+
+# goes through the list of dhcp leases and run poweroff on each client
+# make sure ssh host checking is disabled on that subnet:
+#	Host 10.11.7.0.*
+#	   StrictHostKeyChecking no
+#	   UserKnownHostsFile=/dev/null
+#
+# should not be run too early, the sshd must be running on client
+# problem: if a machine is manually shut down it wont be in the list anymore
+# sending a magic packet takes no time we could collect all MAC addresses over time
+# and go through that list 
+DHCP_LEASES=/var/lib/misc/dnsmasq.leases
+NAME=manage_client
+function su() {
+	sleep $1
+	logger -t $NAME -s "sending magic packet to $3"
+	wakeonlan -i 192.168.4.0 $3
+}
+function sd {
+	logger -t $NAME -s "ssh $1 poweroff"
+	ssh $1 poweroff
+}
+function rs {
+	logger -t $NAME -s "ssh $1 reboot"
+	ssh $1 reboot
+}
+
+case "$1" in
+  start)
+	# how come we still have leases from last time?
+	# because lease time set to infinite
+	# can we increase a delay to stagger boots, problem: there might be a lot of entries in the lease file
+	DELAY=0;	
+	while read ;do
+		su $DELAY $REPLY & #each function has its own process
+		let DELAY+=30 
+	done < "$DHCP_LEASES"
+	wait
+	;;
+  restart)
+	arp -n -i eth0 | tail -n+2 | while read ;do
+		rs $REPLY & #each function has its own process
+	done
+	wait
+	;;
+  stop)
+	# kill all machines connected to br0
+	arp -n -i eth0 | tail -n+2 | while read ;do
+		sd $REPLY & #each function has its own process
+	done
+	wait
+	# client will need some time to shutdown and might still need the nfs mount
+	# the init script should be modified to shutdown directly
+	# we could check arp to know when it is disconnected
+	sleep 20s
+	;;
+  *)
+
+	exit 1
+	;;
+esac
+exit 0
+
