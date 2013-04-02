@@ -37,6 +37,9 @@ etc_server/openvpn  mode=0755  uid=0  gid=0
 etc_server/openvpn/client.conf  mode=0644  uid=0  gid=0
 etc_server/profile.d  mode=0755  uid=0  gid=0
 etc_server/profile.d/kiosk-parameters.sh  mode=0755  uid=0  gid=0
+etc_server/resolvconf/resolv.conf.d  mode=0755  uid=0  gid=0
+etc_server/resolvconf  mode=0755  uid=0  gid=0
+etc_server/resolvconf/resolv.conf.d/base  mode=0644  uid=0  gid=0
 etc_server/squid  mode=0755  uid=0  gid=0
 etc_server/squid/squidGuard.conf  mode=0644  uid=0  gid=13
 etc_server/squid3  mode=0755  uid=0  gid=0
