@@ -51,6 +51,12 @@ etc_server/udev  mode=0755  uid=0  gid=0
 etc_server/udev/rules.d/99-persistent-usb_serial_2.rules  mode=0644  uid=0  gid=0
 etc_server/webalizer  mode=0755  uid=0  gid=0
 etc_server/webalizer/webalizer.conf  mode=0644  uid=0  gid=0
+home/user.ro/.config/google-chrome/Default  mode=0700  uid=1000  gid=1000
+home/user.ro/.config/google-chrome  mode=0700  uid=1000  gid=1000
+home/user.ro/.config  mode=0700  uid=1000  gid=1000
+home/user.ro  mode=0755  uid=1000  gid=1000
+home  mode=0755  uid=0  gid=0
+home/user.ro/.config/google-chrome/Default/Preferences  mode=0600  uid=1000  gid=1000
 readme.md  mode=0644  uid=0  gid=0
 root/.ssh  mode=0755  uid=0  gid=0
 root  mode=0700  uid=0  gid=0
