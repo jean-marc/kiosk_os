@@ -31,7 +31,7 @@ iface eth0:0 inet static
 	post-down iptables -D POSTROUTING -t nat -o eth0:0 -j MASQUERADE
 
 # usb to ethernet
-auto eth1
+#auto eth1
 iface eth1 inet dhcp
 	post-up iptables -A POSTROUTING -t nat -o eth1 -j MASQUERADE
 	post-down iptables -D POSTROUTING -t nat -o eth1 -j MASQUERADE

@@ -45,7 +45,7 @@ case "$1" in
 		su $DELAY $REPLY & #each function has its own process
 		let DELAY+=30 
 	done < "$DHCP_LEASES"
-	wait
+	#wait
 	;;
   restart)
 	arp -n -i eth0 | tail -n+2 | while read ;do
