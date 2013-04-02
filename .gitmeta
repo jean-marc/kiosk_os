@@ -22,6 +22,8 @@ etc_server/apache2  mode=0755  uid=0  gid=0
 etc_server  mode=0755  uid=0  gid=0
 etc_server/apache2/sites-available/content.unicefuganda.org  mode=0644  uid=0  gid=0
 etc_server/apache2/sites-available/wikipedia.unicefuganda.org  mode=0644  uid=0  gid=0
+etc_server/cron.d  mode=0755  uid=0  gid=0
+etc_server/cron.d/modem_reconnect  mode=0644  uid=0  gid=0
 etc_server/dnsmasq.conf  mode=0644  uid=0  gid=0
 etc_server/exports  mode=0644  uid=0  gid=0
 etc_server/hostname  mode=0644  uid=0  gid=0
