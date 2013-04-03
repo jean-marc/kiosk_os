@@ -8,6 +8,8 @@ etc_client/fstab  mode=0644  uid=0  gid=0
 etc_client/hosts  mode=0644  uid=0  gid=0
 etc_original  mode=0755  uid=0  gid=0
 etc_original/fstab  mode=0644  uid=0  gid=0
+etc_original/hostname  mode=0644  uid=0  gid=0
+etc_original/hosts  mode=0644  uid=0  gid=0
 etc_original/initramfs-tools/hooks  mode=0755  uid=0  gid=0
 etc_original/initramfs-tools  mode=0755  uid=0  gid=0
 etc_original/initramfs-tools/hooks/server  mode=0755  uid=0  gid=0
