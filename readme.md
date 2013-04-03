@@ -137,7 +137,7 @@ A few files are needed to run the power management task:
 	lrwxrwxrwx 1 root root 7 2013-03-08 16:51 /dev/ts_45 -> ttyUSB0
 	```
 * [/usr/local/bin/ts_45.sh](/usr/local/bin/ts_45.sh) invokes the program defined in $CHARGE_CONTROLLER and filter it with the awk script and writes to the log file. It will trigger a shutdown if the voltage is below $LOW_VOLTAGE_DISCONNECT_12 or $LOW_VOLTAGE_DISCONNECT_24 (the actual variable is picked depending on current voltage)
-* [/usr/local/bin/ts_45.awk](/usr/local/bin/ts_45.awk)
+* [/usr/local/bin/ts_45.awk](/usr/local/bin/ts_45.awk) awk script to format output for logging (time stamp and comma separated values).
 * /var/log/ts_45.log
 * [/etc_server/profile.d/kiosk_parameters.sh](/etc_server/profile.d/kiosk_parameters.sh)
 	this where global environment variables are defined including $CHARGE_CONTROLLER
