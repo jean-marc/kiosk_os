@@ -74,3 +74,5 @@ var  mode=0755  uid=0  gid=0
 var/ftpd/pxelinux.cfg/default  mode=0644  uid=0  gid=0
 var/www  mode=0755  uid=0  gid=0
 var/www/blocked  mode=0644  uid=0  gid=0
+var/www/management  mode=0755  uid=0  gid=0
+var/www/management/.gitignore  mode=0644  uid=0  gid=0
