@@ -58,6 +58,7 @@ home/user.ro/.config/google-chrome  mode=0700  uid=1000  gid=1000
 home/user.ro/.config  mode=0700  uid=1000  gid=1000
 home/user.ro  mode=0755  uid=1000  gid=1000
 home  mode=0755  uid=0  gid=0
+home/user.ro/.config/google-chrome/Default/Bookmarks  mode=0600  uid=1000  gid=1000
 home/user.ro/.config/google-chrome/Default/Preferences  mode=0600  uid=1000  gid=1000
 readme.md  mode=0644  uid=0  gid=0
 root/.ssh  mode=0755  uid=0  gid=0

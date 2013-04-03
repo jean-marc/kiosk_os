@@ -1,0 +1,48 @@
+{
+   "checksum": "af9d42724d323f3aaac318d073279692",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "12983204758804919",
+            "id": "5",
+            "name": "Introduction",
+            "type": "url",
+            "url": "http://content.unicefuganda.org/2012/05/03/4126/"
+         }, {
+            "date_added": "12983127863256254",
+            "id": "4",
+            "name": "Wikipedia",
+            "type": "url",
+            "url": "http://wikipedia.unicefuganda.org/latest/"
+         } ],
+         "date_added": "12981559784193200",
+         "date_modified": "12983213081475293",
+         "id": "1",
+         "name": "Bookmarks Bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "12983213081475293",
+            "id": "6",
+            "name": "management",
+            "type": "url",
+            "url": "http://192.168.4.1/management/"
+         } ],
+         "date_added": "12981559784193312",
+         "date_modified": "12983213099071922",
+         "id": "2",
+         "name": "Other Bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "12981559784193324",
+         "date_modified": "0",
+         "id": "3",
+         "name": "Synced Bookmarks",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}
