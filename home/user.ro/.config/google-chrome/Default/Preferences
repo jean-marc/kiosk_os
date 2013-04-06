@@ -55,7 +55,7 @@
    },
    "dns_prefetching": {
       "enabled": false,
-      "host_referral_list": [ 2, [ "http://192.168.0.1/", [ "http://192.168.0.1/", 1.5369396706094687 ] ], [ "http://content.unicefuganda.org/", [ "http://content.unicefuganda.org/", 1.8791010640466426 ] ], [ "http://tools.google.com/", [ "http://fonts.googleapis.com/", 1.504039041058379, "http://themes.googleusercontent.com/", 1.504039041058379, "http://tools.google.com/", 2.2672827335357653, "http://www.google-analytics.com/", 1.3132281179390324, "http://www.google.com/", 1.885660887297072 ] ], [ "http://wikipedia.unicefuganda.org/", [ "http://wikipedia.unicefuganda.org/", 0.5674259879158385 ] ] ],
+      "host_referral_list": [ 2, [ "http://192.168.4.1/", [ "http://192.168.4.1/", 1.5369396706094687 ] ], [ "http://content.unicefuganda.org/", [ "http://content.unicefuganda.org/", 1.8791010640466426 ] ], [ "http://tools.google.com/", [ "http://fonts.googleapis.com/", 1.504039041058379, "http://themes.googleusercontent.com/", 1.504039041058379, "http://tools.google.com/", 2.2672827335357653, "http://www.google-analytics.com/", 1.3132281179390324, "http://www.google.com/", 1.885660887297072 ] ], [ "http://wikipedia.unicefuganda.org/", [ "http://wikipedia.unicefuganda.org/", 0.5674259879158385 ] ] ],
       "startup_list": [ 1, "http://content.unicefuganda.org/", "http://linkhelp.clients.google.com/", "http://wikipedia.unicefuganda.org/" ]
    },
    "download": {
