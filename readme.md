@@ -6,6 +6,7 @@ Configuration files are tracked with git on https://github.com/jean-marc/kiosk_o
 Having the configuration under source control offers several advantages:
 
 * get a log of all the modifications (similar to /etc/kiosk-notes) and the current version (actually the last commit), eg: 
+
 ```
 git log
 commit d728f3d4b881652e264cae6a8c62ae703f3305ec
@@ -42,11 +43,13 @@ Dnsmasq is used as a DHCP- and TFTP-server to send initrd.img for network boot.
 
 ##Web Content
 The web server hosts 2 sites: http://content.unicefuganda.org and http://wikipedia.unicefuganda.org, first install apache and some dependencies:
+
 ```
 apt-get install apache2 libapache2-mod-php5 php5-mysql mysql-server
 ```
 ###Content Portal
 1. copy the wordpress site from a local mirror (~ 160G worth of data, will take a long time):
+
 ```
 rsync -av local-mirror:/var/www/content.unicefuganda.org /var/www
 ```
@@ -75,12 +78,14 @@ The offline wikipedia uses the [kiwix](http://kiwix.org/wiki/Main_Page) server, 
 wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/init /etc_server/init/
 ```
 3. copy the virtual site definition [/etc_server/apache2/sites-available/wikipedia.unicefuganda.org](/etc_server/apache2/sites-available/wikipedia.unicefuganda.org), a proxy for the kiwix server, listening on port 1080
+
 ```
 wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/apache2/sites-available/wikipedia.unicefuganda.org /etc/apache2/sites-available/
 a2ensite wikipedia.unicefuganda.org
 a2enmod proxy-http
 ```
 4. get the zim archive from local mirror (also available at http://kiwix.org/wiki/Wikipedia_in_all_languages) and the index (it can also be generated with kiwix-index)
+
 ```
 rsync -av local-mirror:/var/lib/kiwix /var/lib
 ```
@@ -148,6 +153,7 @@ We currently support two models: Morningstar TS-45 and Phocos C-40
 ###TS_45
 The TS 45 is a solar charger, it means that it does not keep track of the current going through the load, just the voltage. 
 need to install libmodbus, there does not seem to be .deb package so you have to build it, get the archive from http://libmodbus.org/download/, unpack, run 
+
 ```
 	./configure 
 	make
@@ -163,6 +169,7 @@ A few files are needed to run the power management task:
 
 * [/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules](/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules)
 	it will create a symbolic link to the USB device eg:
+
 	```
 	$ ls -l /dev/ts_45 
 	lrwxrwxrwx 1 root root 7 2013-03-08 16:51 /dev/ts_45 -> ttyUSB0
@@ -204,6 +211,7 @@ Note that unicef_admin is a regular account but is reserved for administration.
 ## Git specifics
 
 The repository is hosted on github but also on our local server, to get the latest run (for a machine on the local network)
+
 ```
 sudo git pull ssh://root@master.local/srv/server_less_os
 ```
