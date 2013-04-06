@@ -73,10 +73,9 @@ The offline wikipedia uses the [kiwix](http://kiwix.org/wiki/Main_Page) server, 
 
 1. copy the daemon kiwix-serve (and kiwix-index if needed) from local mirror
 2. copy the upstart job [/etc_server/init/kiwix-serve.conf](/etc_server/init/kiwix-serve.conf)
-
-```
-wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/init /etc_server/init/
-```
+	```
+	wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/init /etc_server/init/
+	```
 3. copy the virtual site definition [/etc_server/apache2/sites-available/wikipedia.unicefuganda.org](/etc_server/apache2/sites-available/wikipedia.unicefuganda.org), a proxy for the kiwix server, listening on port 1080
 
 ```
