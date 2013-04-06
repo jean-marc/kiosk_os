@@ -51,12 +51,14 @@ apt-get install apache2 libapache2-mod-php5 php5-mysql mysql-server
 rsync -av local-mirror:/var/www/content.unicefuganda.org /var/www
 ```
 2. copy the virtual site definition [/etc_server/apache2/sites-available/content.unicefuganda.org](/etc_server/apache2/sites-available/content.unicefuganda.org), enable the site and one module
+
 ```
 wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/apache2/sites-available/content.unicefuganda.org /etc/apache2/sites-available/
 a2ensite content.unicefuganda.org
 a2enmod rewrite
 ```
 3. create the database 'unicef' and a user 'unicef_content' to access it, in mysql client:
+
 ```
 create database unicef;
 grant all privileges on unicef.* to 'unicef_content'@'localhost' identified by 'password';
@@ -68,6 +70,7 @@ The offline wikipedia uses the [kiwix](http://kiwix.org/wiki/Main_Page) server, 
 
 1. copy the daemon kiwix-serve (and kiwix-index if needed) from local mirror
 2. copy the upstart job [/etc_server/init/kiwix-serve.conf](/etc_server/init/kiwix-serve.conf)
+
 ```
 wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/init /etc_server/init/
 ```
@@ -81,6 +84,7 @@ a2enmod proxy-http
 ```
 rsync -av local-mirror:/var/lib/kiwix /var/lib
 ```
+
 ##NFS
 The server exports a large subset of its file system on the local network (192.168.4.0/24) through NFS.
 [/etc_server/exports](/etc_server/exports)
