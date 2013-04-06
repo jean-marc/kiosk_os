@@ -32,7 +32,7 @@ The system relies on the above to set up two different configurations decided at
 1. client: no daemons (DHCP, Apache, ...),we  have ```/etc = /etc_original```.
 2. client + server: daemons are started, we have ```/etc = /etc_server + /etc_original```, where '+' means a union file system mount (/etc_server is mounted on top of /etc_original). Note: the client-only OS is still available at /client (it gets NFS-exported as defined in [/etc_server/exports](/etc_server/exports))
 
-The union mount takes place early in the boot process through a customized initrd.img created with the initramfs tool (see [/etc_original/initramfs-tools/scripts/init-bottom/server](/etc_original/initramfs-tools/scripts/init-bottom/server) and [/etc_original/initramfs-tools/hooks/server](/etc_original/initramfs-tools/hooks/server)).
+The union mount takes place early in the boot process through a customized initrd.img created with the initramfs tool (see [/etc_original/initramfs-tools/scripts/init-bottom/server](/etc_original/initramfs-tools/scripts/init-bottom/server) and [/etc_original/initramfs-tools/hooks/server](/etc_original/initramfs-tools/hooks/server)). This means that the OS is only usable as client-only when running in a chroot jail (unless it is possible to manually do a aufs mount in the root).
 
 ##DHCP & TFTP
 Dnsmasq is used as a DHCP- and TFTP-server to send initrd.img for network boot.
@@ -40,23 +40,47 @@ Dnsmasq is used as a DHCP- and TFTP-server to send initrd.img for network boot.
 * [/etc_server/dnsmasq.conf](/etc_server/dnsmasq.conf)
 * [/var/ftpd/pxelinux.cfg/default](/var/ftpd/pxelinux.cfg/default)
 
-##Apache
-There are two virtual hosts:
-
-1. [/etc_server/apache2/sites-available/content.unicefuganda.org](/etc_server/apache2/sites-available/content.unicefuganda.org)
-2. [/etc_server/apache2/sites-available/wikipedia.unicefuganda.org](/etc_server/apache2/sites-available/wikipedia.unicefuganda.org), a proxy for the kiwix server, listening on port 1080 (see [/etc_server/init/kiwix-serve.conf](/etc_server/init/kiwix-serve.conf)).
+##Web Content
+The web server hosts 2 sites: http://content.unicefuganda.org and http://wikipedia.unicefuganda.org, first install apache and some dependencies:
+```
+apt-get install apache2 libapache2-mod-php5 php5-mysql mysql-server
+```
+###Content Portal
+1. copy the wordpress site from a local mirror (~ 160G worth of data, will take a long time):
+```
+rsync -av local-mirror:/var/www/content.unicefuganda.org /var/www
+```
+2. copy the virtual site definition [/etc_server/apache2/sites-available/content.unicefuganda.org](/etc_server/apache2/sites-available/content.unicefuganda.org), enable the site and one module
+```
+wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/apache2/sites-available/content.unicefuganda.org /etc/apache2/sites-available/
+a2ensite content.unicefuganda.org
+a2enmod rewrite
+```
+3. create the database 'unicef' and a user 'unicef_content' to access it, in mysql client:
+```
+create database unicef;
+grant all privileges on unicef.* to 'unicef_content'@'localhost' identified by 'password';
+```
+where 'password' must match the credentials in /var/www/content.unicefuganda.org/wp-config.php, the site should be up and running.
 
 ###Wikipedia
 The offline wikipedia uses the [kiwix](http://kiwix.org/wiki/Main_Page) server, relevant files are:
 
-* [/etc_server/init/kiwix-serve.conf](/etc_server/init/kiwix-serve.conf) upstart script to start the daemon, the server listens on port 1080 and is proxied by apache.
-* /usr/local/bin/kiwix-serve the daemon
-* /usr/local/bin/kiwix-index to generate the index
-* /var/lib/kiwix/latest.zim a symbolic link to the latest archive, available at http://kiwix.org/wiki/Wikipedia_in_all_languages
-* /var/lib/kiwix/index/	 contains a database used by the search engine, it is generated from the archive
-
-###Content Portal
-The content portal is a mirror of http://content.unicefuganda.org.
+1. copy the daemon kiwix-serve (and kiwix-index if needed) from local mirror
+2. copy the upstart job [/etc_server/init/kiwix-serve.conf](/etc_server/init/kiwix-serve.conf)
+```
+wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/init /etc_server/init/
+```
+3. copy the virtual site definition [/etc_server/apache2/sites-available/wikipedia.unicefuganda.org](/etc_server/apache2/sites-available/wikipedia.unicefuganda.org), a proxy for the kiwix server, listening on port 1080
+```
+wget http://raw.github.com/jean-marc/kiosk_os/master/etc_server/apache2/sites-available/wikipedia.unicefuganda.org /etc/apache2/sites-available/
+a2ensite wikipedia.unicefuganda.org
+a2enmod proxy-http
+```
+4. get the zim archive from local mirror (also available at http://kiwix.org/wiki/Wikipedia_in_all_languages) and the index (it can also be generated with kiwix-index)
+```
+rsync -av local-mirror:/var/lib/kiwix /var/lib
+```
 ##NFS
 The server exports a large subset of its file system on the local network (192.168.4.0/24) through NFS.
 [/etc_server/exports](/etc_server/exports)
@@ -69,11 +93,14 @@ Note that booting clients is pretty taxing on the NFS server (for some reason bo
 We use a combination of caching-proxy server Squid (www.squid-cache.org) and filter SquidGuard (www.squidguard.org) and some iptable rules to redirect HTTP traffic to Squid. 
 
 * [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf), 
+* [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf), 
 * /usr/local/squid/var/cache/squid the squid cache, note that content.unicefuganda.org and wikipedia.unicefuganda.org are excluded from the cache because thoses sites are hosted locally (it should always cause a 'TCP_MISS' in /var/log/squid3/access.log)
 * [/etc_server/network/interfaces](/etc_server/network/interfaces), note the use of '--uid-owner' to filter the HTTP traffic leaving the server
 
+Note that HTTPS traffic is not filtered.
+
 ##Webalizer
-The report (eg. http://ssh.unicefuganda.org/webalizer/) is updated everyday based on the Squid log file (becauses it caches all HTTP requests).
+The report (eg. http://ssh.unicefuganda.org/webalizer/) is updated everyday based on the Squid log file (becauses it caches all HTTP requests), it is available locally at http://server/management/webalizer.
 
 * [/etc_server/webalizer/webalizer.conf](/etc_server/webalizer/webalizer.conf)
 
@@ -170,4 +197,11 @@ A [tmpfs](http://en.wikipedia.org/wiki/Tmpfs) file system is union-mounted on to
 Based on user s feedback we will create new regular accounts without the above limitations (that creates other problems if the same account is used on different machines at the same time). 
 Note that unicef_admin is a regular account but is reserved for administration.
 
+## Git specifics
+
+The repository is hosted on github but also on our local server, to get the latest run (for a machine on the local network)
+```
+sudo git pull ssh://root@master.local/srv/server_less_os
+```
+This is convenient for incremental changes, rsync will still be necessary in case of new binary files (executables, media, database,...) 
 
