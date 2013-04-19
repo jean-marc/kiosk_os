@@ -97,6 +97,16 @@ Note that booting clients is pretty taxing on the NFS server (for some reason bo
 ##Proxy/Firewall
 [/etc_server/network/interfaces](/etc_server/network/interfaces)
 
+##Internet Access
+Internet is mainly accessed with GPRS modems with the PPP protocol. Relevant files are:
+
+* [/etc_server/chatscripts/orange](/etc_server/chatscripts/orange)
+* [/etc_server/ppp/peers/orange](/etc_server/ppp/peers/orange)
+* [/etc_server/network/interfaces](/etc_server/network/interfaces)
+* [/etc_server/cron.d/modem_reconnect](/etc_server/ncron.d/modem_reconnect) a cron job that will attempt a reconnection if interface ppp0 is down.
+
+The interface is brought up by /sbin/ifup, unfortunately it causes a disconnection as soon as the link is established (see bug https://bugs.launchpad.net/ubuntu/+source/ppp/+bug/776193
+
 ##HTTP filter
 We use a combination of caching-proxy server Squid (www.squid-cache.org) and filter SquidGuard (www.squidguard.org) and some iptable rules to redirect HTTP traffic to Squid. 
 
@@ -130,6 +140,7 @@ The same certificate on all kiosks, the server will identify individual machines
 </inv:Server>
 ```
 The above snippet indicates that the server with MAC address 3018ac5fed is part of 'uniport-0'. The advantage of that scheme is that all kiosks run exactly the same OS (same hostname, VPN certificats,...) and makes deployment and update easier.
+The hostname could also be set automatically by running a database query once at installation, it would require network access to the database or have some cache installed locally, note that it would still use the same VPN certificate but would make identification simpler(```ssh 10.8.0.123 hostname```).
 
 
 ##Client control
@@ -206,6 +217,10 @@ All the clients see the same file system with some slight variations when networ
 A [tmpfs](http://en.wikipedia.org/wiki/Tmpfs) file system is union-mounted on top of the /home/user directory, this makes possible to set up default configurations eg. home pages for browser while allowing the user to make temporary modifications, all changes will be lost once the machine reboots. The reason for that design decision is to guarantee system stability, the downside is the inability to save any file except on external storage (USB stick, cellphone) and increased RAM used (the clients should use swap space unless there is no hard-drive).
 Based on user s feedback we will create new regular accounts without the above limitations (that creates other problems if the same account is used on different machines at the same time). 
 Note that unicef_admin is a regular account but is reserved for administration.
+
+##Thin Clients
+
+There is a provision to have older machines connect as client, they might not have enough CPU power or RAM to run the OS and applications, the solution is to place the burden on the server, the client just run a graphical client (over ssh) but all the applications are run on the server. The (www.ltsp.org) uses thin clients.
 
 ## Git specifics
 
