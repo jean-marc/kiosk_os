@@ -109,35 +109,37 @@ The interface is brought up by /sbin/ifup, unfortunately it causes a disconnecti
 
 ##HTTP filter
 We use a combination of caching-proxy server Squid (www.squid-cache.org) and filter SquidGuard (www.squidguard.org) and some iptable rules to redirect HTTP traffic to Squid. 
+SquidGuard kicks in right before the page is about to be fetched, URL and IP address are checked against information in /var/lib/squidguard/db and if deemed inappropriate URL is rewritten to http://192.168.4.1/blocked. The database is built from regularly updated blacklist available on-line see http://www.squidguard.org/blacklists.html.
 
-* [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf), 
-* [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf), 
+* [/etc_server/squid3/squid.conf](/etc_server/squid3/squid.conf) note the line ```acl lan src all``` to allow the server to access squid because of no prior knowledge of the IP address given through DHCP by the Internet provider. 
+* [/etc_server/squid/squidGuard.conf](/etc_server/squid/squidGuard.conf), 
 * /usr/local/squid/var/cache/squid the squid cache, note that content.unicefuganda.org and wikipedia.unicefuganda.org are excluded from the cache because thoses sites are hosted locally (it should always cause a 'TCP_MISS' in /var/log/squid3/access.log)
 * [/etc_server/network/interfaces](/etc_server/network/interfaces), note the use of '--uid-owner' to filter the HTTP traffic leaving the server
+* [/var/www/blocked](/var/www/blocked) the page returned when a site is blocked.
 
 Note that HTTPS traffic is not filtered.
 
 ##Webalizer
-The report (eg. http://ssh.unicefuganda.org/webalizer/) is updated everyday based on the Squid log file (becauses it caches all HTTP requests), it is available locally at http://server/management/webalizer.
+The report (eg. http://monitor.unicefuganda.org/webalizer/) is updated everyday based on the Squid log file (becauses it filters all HTTP requests), it is available locally at http://server/management/webalizer and on the Internet at http://monitor.unicefuganda.org/monitor/webalizer/. 
 
 * [/etc_server/webalizer/webalizer.conf](/etc_server/webalizer/webalizer.conf)
 
 ##VPN
-As soon as a connection to the Internet is available, the kiosk connects to a VPN server (http://ssh.unicefuganda.org) and joins a virtual network using a unique certificate. The central server can easily connect to any on-line kiosk and run a SSH session (after public key exchange), kiosks can also bypass the server and talk to each other. 
+As soon as a connection to the Internet is available, the kiosk connects to a VPN server (http://monitor.unicefuganda.org) and joins a virtual network using a unique certificate. The central server can easily connect to any on-line kiosk and run a SSH session (provided public key has been exchanged), kiosks can also bypass the server and talk to each other. 
 
 * /etc_server/openvpn/ca.crt
 * [/etc_server/openvpn/client.conf](/etc_server/openvpn/client.conf)
 * /etc_server/openvpn/kiosk-generic.crt
 * /etc_server/openvpn/kiosk-generic.key
 
-The same certificate on all kiosks, the server will identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database [http://inventory.unicefuganda.org/sparql?query=describe &lt;96344&gt;](http://inventory.unicefuganda.org/sparql?query=describe%20%3C96344%3E ):
+The same certificate can be used on all kiosks, the server will identify individual machines based on their MAC address (/sys/class/net/eth0/address), that information already exists in our management database [http://monitor.unicefuganda.org/sparql?query=describe &lt;96344&gt;](http://monitor.unicefuganda.org/sparql?query=describe%20%3C96344%3E ):
 ```xml
-<inv:Server rdf:ID="96344">
-	<inv:time_stamp_v>2013-03-08T21:31:58</inv:time_stamp_v>
-	<inv:partOf rdf:resource="#uniport-0"/>
-	<inv:model rdf:resource="#D2"/>
-	<inv:_mac_>3018ac5fed</inv:_mac_>
-</inv:Server>
+<mon:Server rdf:ID="96344">
+	<mon:time_stamp_v>2013-03-08T21:31:58</mon:time_stamp_v>
+	<mon:partOf rdf:resource="#uniport-0"/>
+	<mon:model rdf:resource="#D2"/>
+	<mon:_mac_>3018ac5fed</mon:_mac_>
+</mon:Server>
 ```
 The above snippet indicates that the server with MAC address 3018ac5fed is part of 'uniport-0'. The advantage of that scheme is that all kiosks run exactly the same OS (same hostname, VPN certificats,...) and makes deployment and update easier.
 The hostname could also be set automatically by running a database query once at installation, it would require network access to the database or have some cache installed locally, note that it would still use the same VPN certificate but would make identification simpler(```ssh 10.8.0.123 hostname```).
@@ -158,23 +160,7 @@ The relevant files are:
 ##Power management
 
 The main task is to log information from the charge controller and trigger a shutdown when the voltage is nearing a set threshold.
-We currently support two models: Morningstar TS-45 and Phocos C-40
-
-###TS_45
-The TS 45 is a solar charger, it means that it does not keep track of the current going through the load, just the voltage. 
-need to install libmodbus, there does not seem to be .deb package so you have to build it, get the archive from http://libmodbus.org/download/, unpack, run 
-
-```
-	./configure 
-	make
-	sudo make install
-	sudo ldconfig
-```
-build the client (https://github.com/jean-marc/ts_mppt)
-
-###Phocos
-The charge controller uses a TTL interface and requires a TTL-to-serial or TTL-to-USB adapter (eg. [here](http://compare.ebay.com/like/251117477526?var=lv&ltyp=AllFixedPriceItemTypes&var=sbar&_lwgsi=y&cbt=y)). The client is a python script (https://github.com/jean-marc/ts_mppt/blob/master/phocos.py)
-
+We currently support two models: Morningstar TS-45 and Phocos C-40.
 A few files are needed to run the power management task:
 
 * [/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules](/etc_server/udev/rules.d/99-persistent-usb_serial_2.rules)
@@ -195,16 +181,29 @@ Note: the script is also invoked by the remote monitoring task (see remote monit
 Note: names should be changed from 'ts_45' to something more generic
 User 'unicef_admin' should be part of group 'dialout' to be allowed to open the device.
 
+###TS_45
+The TS 45 is a solar charger, it means that it does not keep track of the current going through the load, just the voltage. 
+need to install libmodbus, there does not seem to be .deb package so you have to build it, get the archive from http://libmodbus.org/download/, unpack, run 
+
+```
+	./configure 
+	make
+	sudo make install
+	sudo ldconfig
+```
+build the client (https://github.com/jean-marc/ts_mppt)
+
+###Phocos
+The charge controller uses a TTL interface and requires a TTL-to-serial or TTL-to-USB adapter (eg. [here](http://compare.ebay.com/like/251117477526?var=lv&ltyp=AllFixedPriceItemTypes&var=sbar&_lwgsi=y&cbt=y)). The client is a python script (https://github.com/jean-marc/ts_mppt/blob/master/phocos.py)
+
 ##Traffic accounting
 
 Part of the monitoring task is to measure how much data is being used for Internet access, a few files are necessary:
 
 * [/etc_server/init/traffic_accounting.conf](/etc_server/init/traffic_accounting.conf)
 	set up a few rules to capture traffic going out, management traffic (to and from 196.0.26.0/24) is separated from the rest. An environment variable $NET defines the interface used to access the Internet (eg. ppp0 for USB modem, eth0 for Ethernet) (see http://mbuya.unicefuganda.org/?p=703)
-* [/usr/local/bin/safe_iptables.sh](/usr/local/bin/safe_iptables.sh)
-	script to read the counter
-* [/etc_server/sudoers.d/safe_iptables](/etc_server/sudoers.d/safe_iptables)
-	allows to run the above script without entering password (for remote monitoring), it will be invoked as ```sudo safe_iptables.sh```
+* [/usr/local/bin/safe_iptables.sh](/usr/local/bin/safe_iptables.sh) script to read the counter
+* [/etc_server/sudoers.d/safe_iptables](/etc_server/sudoers.d/safe_iptables) allows to run the above script without entering password (for remote monitoring), it will be invoked as ```sudo safe_iptables.sh```
 Counters get reset when machine is turned off.
 
 ##Client file system
@@ -220,7 +219,7 @@ Note that unicef_admin is a regular account but is reserved for administration.
 
 ##Thin Clients
 
-There is a provision to have older machines connect as client, they might not have enough CPU power or RAM to run the OS and applications, the solution is to place the burden on the server, the client just run a graphical client (over ssh) but all the applications are run on the server. The (www.ltsp.org) uses thin clients.
+There is a provision to have older machines connect as client, they might not have enough CPU power or RAM to run the OS and applications, the solution is to place the burden on the server, the client just run a graphical client (over ssh) but all the applications are run on the server see www.ltsp.org for more information on thin clients.
 
 ## Git specifics
 
