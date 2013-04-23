@@ -35,6 +35,7 @@ The system relies on the above to set up two different configurations decided at
 
 The union mount takes place early in the boot process through a customized initrd.img created with the initramfs tool (see [/etc_original/initramfs-tools/scripts/init-bottom/server](/etc_original/initramfs-tools/scripts/init-bottom/server) and [/etc_original/initramfs-tools/hooks/server](/etc_original/initramfs-tools/hooks/server)). This means that the OS is only usable as client-only when running in a chroot jail (unless it is possible to manually do a aufs mount in the root).
 
+Note that this file organization has consequences on apparmor because applications will attempt to access files at non-standard locations eg. /etc_server/passwd instead of /etc/passwd , those applications need to be authorized.  
 ##DHCP & TFTP
 Dnsmasq is used as a DHCP- and TFTP-server to send initrd.img for network boot.
 
@@ -120,7 +121,7 @@ SquidGuard kicks in right before the page is about to be fetched, URL and IP add
 Note that HTTPS traffic is not filtered.
 
 ##Webalizer
-The report (eg. http://monitor.unicefuganda.org/webalizer/) is updated everyday based on the Squid log file (becauses it filters all HTTP requests), it is available locally at http://server/management/webalizer and on the Internet at http://monitor.unicefuganda.org/monitor/webalizer/. 
+The report (eg. http://monitor.unicefuganda.org/webalizer/) is updated everyday based on the Squid log file (becauses it filters all HTTP requests), it is available locally at http://server/management/webalizer and on the Internet at for instance http://monitor.unicefuganda.org/monitor/webalizer/kiosk-46. Note that the client IP addresses are on the 192.168.4.0/24 network, the server is 192.168.4.1 or whichever private IP address given by the ISP eg.:10.128.88.120
 
 * [/etc_server/webalizer/webalizer.conf](/etc_server/webalizer/webalizer.conf)
 
@@ -216,10 +217,20 @@ All the clients see the same file system with some slight variations when networ
 A [tmpfs](http://en.wikipedia.org/wiki/Tmpfs) file system is union-mounted on top of the /home/user directory, this makes possible to set up default configurations eg. home pages for browser while allowing the user to make temporary modifications, all changes will be lost once the machine reboots. The reason for that design decision is to guarantee system stability, the downside is the inability to save any file except on external storage (USB stick, cellphone) and increased RAM used (the clients should use swap space unless there is no hard-drive).
 Based on user s feedback we will create new regular accounts without the above limitations (that creates other problems if the same account is used on different machines at the same time). 
 Note that unicef_admin is a regular account but is reserved for administration.
+This is somewhat similar to the 'guest' account already present in Ubuntu.
 
 ##Thin Clients
 
-There is a provision to have older machines connect as client, they might not have enough CPU power or RAM to run the OS and applications, the solution is to place the burden on the server, the client just run a graphical client (over ssh) but all the applications are run on the server see www.ltsp.org for more information on thin clients.
+There is a provision to have older machines connect as client, they might not have enough CPU power or RAM to run the OS and applications, the solution is to place the burden on the server, the client just runs a graphical client (over ssh) but all the applications are run on the server see www.ltsp.org for more information on thin clients.
+It uses a the nbd(http://en.wikipedia.org/wiki/Network_block_device) protocol to export the minimum operating system (/opt/ltsp/images/i386.img) to the thin client, the clients then starts a graphic session on the server.
+It uses the dhcpd server instead of dnsmasq
+The problem is that now all the sessions are run by the same user 'user', it will confuse some applications (Firefox, Chrome,...), a simple solution is to set different accounts for each machine.
+
+##NTP
+
+Network time protocol is used to synchronize the clocks on remote machines, the default built in ntpdate only runs when the machine boots and will fail if no network is available.
+ntpd runs as a daemon.
+```apt-get install ntp```
 
 ## Git specifics
 
