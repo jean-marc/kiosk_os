@@ -6,6 +6,7 @@ boot/grub/grub.cfg  mode=0444  uid=0  gid=0
 etc/apparmor.d  mode=0755  uid=0  gid=0
 etc  mode=0755  uid=0  gid=0
 etc/apparmor.d/usr.sbin.ntpd  mode=0644  uid=0  gid=0
+etc/dnsmasq.ltsp.conf  mode=0644  uid=0  gid=0
 etc_client  mode=0755  uid=0  gid=0
 etc_client/fstab  mode=0644  uid=0  gid=0
 etc_client/hosts  mode=0644  uid=0  gid=0
