@@ -240,9 +240,19 @@ Note that unicef_admin is a regular account but is reserved for administration.
 ##Thin Clients
 
 There is a provision to have older machines connect as client, they might not have enough CPU power or RAM to run the OS and applications, the solution is to place the burden on the server, the client just runs a graphical client (over ssh) but all the applications are run on the server see www.ltsp.org for more information on thin clients.
-It uses a the nbd(http://en.wikipedia.org/wiki/Network_block_device) protocol to export the minimum operating system (/opt/ltsp/images/i386.img) to the thin client, the clients then starts a graphic session on the server.
-It uses the dhcpd server instead of dnsmasq
-The problem is that now all the sessions are run by the same user 'user', it will confuse some applications (Firefox, Chrome,...), a simple solution is to set different accounts for each machine.
+
+###Installation
+[/etc_server/dnsmasq.ltsp.conf](/etc_server/dnsmasq.ltsp.conf) ensures dnsmasq is only running as as a DNS server: no DHCP or TFTP 
+```
+apt-get install ltsp-server-standalone
+ltsp-build-client --arch i386
+useradd -m -s /bin/bash user_1
+useradd -m -s /bin/bash user_2
+```
+The last command will download a minimum OS (i386) to run on the thin client.
+It uses the nbd(http://en.wikipedia.org/wiki/Network_block_device) protocol to export the minimum operating system (/opt/ltsp/images/i386.img) to the thin client, the clients then starts a graphic session on the server. 
+The problem is that now all the sessions are run by the same user 'user', it will confuse some applications (Firefox, Chrome,...), a simple solution is to set different accounts ('user_1','user_2') for each machine: see [/opt/ltsp/i386/etc/lts.conf](/opt/ltsp/i386/etc/lts.conf)
+After any modification to the client OS (/opt/ltsp/i386/), the squashfs image needs to be updated (ltsp-update-image -a i386).
 
 ##NTP
 
