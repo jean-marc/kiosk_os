@@ -17,8 +17,8 @@ Date:   Sat Mar 23 20:36:46 2013 +0300
 ``` 
 
 * query the version remotely (through VPN) so we can populate our management database with up-to-date information
-* update OS with ```git pull``` (note we could also do a blank file synchronization with rsync as long as we include /.git)
-* we could create new branches to run tests and merge in the main branch if successful 
+* update OS with ```git pull``` (note we could also do a blank file synchronization with rsync as long as we include /.git), if the file under source control is the configuration of application 'x', that application will have to be installed the usual way (apt-get install 'x')
+* new branches can be created to run tests and merged in the main branch if successful 
 
 The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system.
 
@@ -96,17 +96,36 @@ The server exports a large subset of its file system on the local network (192.1
 Note that booting clients is pretty taxing on the NFS server (for some reason booting an NL2 client:~30s is faster than NL3:~120s, there might be some problem on the client side) and can cause failures if booting more than one client at a time, the script [/etc_server/init.d/manage_client](/etc_server/init.d/manage_client) has been modified to stagger the boots and minimize the load (it might be good to delete /var/lib/misc/dsmasq.leases on a new set).
 
 ##Proxy/Firewall
+
 [/etc_server/network/interfaces](/etc_server/network/interfaces)
 
 ##Internet Access
-Internet is mainly accessed with GPRS modems with the PPP protocol. Relevant files are:
+The network manager has been removed because it interfers with the /etc_server/network/interfaces
+###PPP
+Internet is mainly accessed with GPRS modems using PPP protocol. Relevant files are:
 
 * [/etc_server/chatscripts/orange](/etc_server/chatscripts/orange)
 * [/etc_server/ppp/peers/orange](/etc_server/ppp/peers/orange)
 * [/etc_server/network/interfaces](/etc_server/network/interfaces)
 * [/etc_server/cron.d/modem_reconnect](/etc_server/ncron.d/modem_reconnect) a cron job that will attempt a reconnection if interface ppp0 is down.
 
-The interface is brought up by /sbin/ifup, unfortunately it causes a disconnection as soon as the link is established (see bug https://bugs.launchpad.net/ubuntu/+source/ppp/+bug/776193
+The interface is brought up by /sbin/ifup, unfortunately it causes a disconnection as soon as the link is established (see bug https://bugs.launchpad.net/ubuntu/+source/ppp/+bug/776193), there seems to be no other fix than patching the executable:
+```
+sed 's/updetach/        /g' /sbin/ifup >/sbin/ifup_patch
+ln -s /sbin/ifup_patch ./ifup
+```
+The original executable can be recovered by removing the symbolic link.
+###Ethernet
+A free interface can be used to access the internet (eg. eth1 in /etc_server/network/interfaces), if none is available a USB-to-Ethernet can be used or a new address can be added to the existing interface:
+```
+dhclient eth0
+```
+Note that in the latter case there is only one physical network with 2 DHCP servers, the clients might get their lease from the wrong server.
+There should be a way to set that up in the interfaces file.
+
+###Wireless
+
+The wireless can also be used see /etc_original/network/interfaces for an example. 
 
 ##HTTP filter
 We use a combination of caching-proxy server Squid (www.squid-cache.org) and filter SquidGuard (www.squidguard.org) and some iptable rules to redirect HTTP traffic to Squid. 
@@ -214,10 +233,9 @@ All the clients see the same file system with some slight variations when networ
 * [/etc_original/fstab](/etc_original/fstab)
 * [/etc_client/fstab](/etc_client/fstab)
 
-A [tmpfs](http://en.wikipedia.org/wiki/Tmpfs) file system is union-mounted on top of the /home/user directory, this makes possible to set up default configurations eg. home pages for browser while allowing the user to make temporary modifications, all changes will be lost once the machine reboots. The reason for that design decision is to guarantee system stability, the downside is the inability to save any file except on external storage (USB stick, cellphone) and increased RAM used (the clients should use swap space unless there is no hard-drive).
+A [tmpfs](http://en.wikipedia.org/wiki/Tmpfs) file system is union-mounted on top of the /home/user directory, this makes possible to set up default configurations eg. home pages for browser while allowing the user to make temporary modifications, all changes will be lost once the machine reboots. The reason for that design decision is to guarantee system stability, the downside is the inability to save any file except on external storage (USB stick, cellphone) and increased RAM used (the clients should use swap space unless there is no hard-drive). This is somewhat similar to the 'guest' account already present in Ubuntu.
 Based on user s feedback we will create new regular accounts without the above limitations (that creates other problems if the same account is used on different machines at the same time). 
 Note that unicef_admin is a regular account but is reserved for administration.
-This is somewhat similar to the 'guest' account already present in Ubuntu.
 
 ##Thin Clients
 
