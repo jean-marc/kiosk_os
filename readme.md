@@ -1,7 +1,8 @@
 #Kiosk OS customization 
 ##Introduction
 This document explains how to set-up server and clients for the rugged computer kiosk.
-Configuration files are tracked with git on https://github.com/jean-marc/kiosk_os . Special hooks (note: they do not get copied when cloning a repository) need to be added to git to maintain file permission and ownership (is the file executable?...), see https://www.jottit.com/jg8h7/, the meta-data is saved in [/.gitmeta](/.gitmeta). 
+Configuration files are tracked with git on monitor.unicefuganda.org:/srv/git/kiosk_os.git (requires SSH credentials) and https://github.com/jean-marc/kiosk_os.git (public). 
+Special hooks (note: they do not get copied when cloning a repository) need to be added to git to maintain file permission and ownership (is the file executable?...), see https://www.jottit.com/jg8h7/, the meta-data is saved in [/.gitmeta](/.gitmeta). 
 
 Having the configuration under source control offers several advantages:
 
@@ -273,10 +274,18 @@ ntpd runs as a daemon.
 
 ## Git specifics
 
-The repository is hosted on github but also on our local server, to get the latest run (for a machine on the local network)
-
+The repository is hosted on github but also on our local server:
 ```
-sudo git pull ssh://root@master.local/srv/server_less_os
+sudo git remote add origin_mbuya unicef_admin@monitor.unicefuganda.org:/srv/git/kiosk_os.git
+sudo git pull origin
+sudo git pull origin_mbuya master
 ```
 This is convenient for incremental changes, rsync will still be necessary in case of new binary files (executables, media, database,...) 
+If there are no network connectivity the repository can be copied to a storage media and used instead:
+```
+sudo git remote add origin_usb /media/usb/full/path/to/kiosk_os.git
+sudo git pull origin_usb master
+```
+
+
 
