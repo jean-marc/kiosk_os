@@ -64,10 +64,21 @@ a2enmod rewrite
 3. create the database 'unicef' and a user 'unicef_content' to access it, in mysql client:
 
 ```
+mysql -u root -p
 create database unicef;
 grant all privileges on unicef.* to 'unicef_content'@'localhost' identified by 'password';
 ```
 where 'password' must match the credentials in /var/www/content.unicefuganda.org/wp-config.php, the site should be up and running.
+
+Special setting for read-only file system
+
+If the database is installed on a read-only file system (eg. drum, maybe Digital Doorway in the future), the database needs to be authorized by apparmor:
+```
+mount -o remount,rw /ro
+ln -s /ro/etc/apparmor.d/usr.sbin.mysqld /ro/etc/apparmor.d/disable
+apparmor_parser -R /ro/etc/apparmor.d/usr.sbin.mysqld
+```
+Depending on the backend, the database might need write-access to the file system, this will use the tmpfs file system and use extra RAM, to make sure the database does not write to file 'MyISAM' engine can be used or - on recent versions of mysql (5.6) - 'InnoDB' with '--innodb-read-only' option (http://dev.mysql.com/doc/refman/5.6/en/innodb-parameters.html#sysvar_innodb_read_only).
 
 ###Wikipedia
 The offline wikipedia uses the [kiwix](http://kiwix.org/wiki/Main_Page) server, relevant files are:
