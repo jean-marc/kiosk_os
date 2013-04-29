@@ -17,6 +17,8 @@ etc_doorway/default/tftpd-hpa  mode=0644  uid=0  gid=0
 etc_doorway/dnsmasq.conf  mode=0644  uid=0  gid=0
 etc_doorway/hostname  mode=0644  uid=0  gid=0
 etc_doorway/hosts  mode=0644  uid=0  gid=0
+etc_doorway/init  mode=0755  uid=0  gid=0
+etc_doorway/init/traffic_accounting.conf  mode=0644  uid=0  gid=0
 etc_doorway/ltsp  mode=0755  uid=0  gid=0
 etc_doorway/ltsp/dhcpd.conf  mode=0644  uid=0  gid=0
 etc_doorway/nbd-server  mode=0755  uid=0  gid=0
@@ -56,8 +58,8 @@ etc_server/ltsp  mode=0000  uid=  gid=
 etc_server/ltsp/dhcpd.conf  mode=0000  uid=  gid=
 etc_server/network  mode=0755  uid=0  gid=0
 etc_server/network/interfaces  mode=0777  uid=0  gid=0
-etc_server/network/interfaces_dd  mode=0644  uid=0  gid=0
-etc_server/network/interfaces_kiosk  mode=0644  uid=0  gid=0
+etc_server/network/interfaces_dd  mode=0000  uid=  gid=
+etc_server/network/interfaces_kiosk  mode=0000  uid=  gid=
 etc_server/openvpn  mode=0755  uid=0  gid=0
 etc_server/openvpn/client.conf  mode=0644  uid=0  gid=0
 etc_server/profile.d  mode=0755  uid=0  gid=0
