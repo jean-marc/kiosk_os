@@ -1,0 +1,53 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto eth0
+iface eth0 inet dhcp
+	#block HTTP traffic from server
+	#post-up iptables -A OUTPUT -p tcp --dport 80 -j REJECT
+	#post-down iptables -D OUTPUT -p tcp --dport 80 -j REJECT
+	post-up iptables -A POSTROUTING -t nat -o eth0 -j MASQUERADE
+	post-down iptables -D POSTROUTING -t nat -o eth0 -j MASQUERADE
+
+# The bridged interfaces
+auto br0
+iface br0 inet static
+	address 192.168.4.1
+	network 192.168.4.0 
+	netmask 255.255.255.0
+	broadcast 192.168.4.255
+	bridge-ports eth1 eth2
+	bridge_maxwait 0
+	bridge_fd 0
+	bridge_stp on
+	#set up squid
+	#what about not going through squid when accessing local content?
+	#post-up iptables -A PREROUTING -t nat -i br0 -p tcp --dport 80 -j DNAT --to 192.168.3.1:3128
+	#post-down iptables -D PREROUTING -t nat -i br0 -p tcp --dport 80 -j DNAT --to 192.168.3.1:3128
+# The local network
+#auto eth1
+#iface eth1 inet static
+#	address 192.168.4.1
+#	network 192.168.4.0 
+#	netmask 255.255.255.0
+#	broadcast 192.168.4.255
+#	#set up squid
+#	#what about not going through squid when accessing local content?
+#	#post-up iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
+#	#post-down iptables -D PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
+
+# dongle
+# how to support more than one provider, it seems only the APN varies from one provider to the next
+
+#allow-hotplug ppp0
+#auto ppp0
+iface ppp0 inet ppp
+	provider orange
+	post-up iptables -A POSTROUTING -t nat -o ppp0 -j MASQUERADE
+	post-down iptables -D POSTROUTING -t nat -o ppp0 -j MASQUERADE
+
