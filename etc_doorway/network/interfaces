@@ -1,0 +1,35 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+	post-up iptables -A POSTROUTING -t nat -o eth0 -j MASQUERADE
+	post-down iptables -D POSTROUTING -t nat -o eth0 -j MASQUERADE
+	
+# The local network
+auto br0
+iface br0 inet static
+	address 192.168.4.1
+	network 192.168.4.0 
+	netmask 255.255.255.0
+	broadcast 192.168.4.255
+	bridge-ports eth1 eth2
+	#HTTP traffic from LAN
+	post-up iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
+	post-down iptables -D PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
+	#HTTP traffic from this machine	
+	post-up iptables -A OUTPUT -t nat -p tcp --dport 80 -m owner ! --uid-owner proxy -j DNAT --to 192.168.4.1:3128
+	post-down iptables -D OUTPUT -t nat -p tcp --dport 80 -m owner ! --uid-owner proxy -j DNAT --to 192.168.4.1:3128
+
+# dongle
+#allow-hotplug ppp0
+#auto ppp0
+iface ppp0 inet ppp
+	provider orange
+	post-up iptables -A POSTROUTING -t nat -o ppp0 -j MASQUERADE
+	post-down iptables -D POSTROUTING -t nat -o ppp0 -j MASQUERADE
+
