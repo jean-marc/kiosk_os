@@ -24,6 +24,13 @@ mount --bind -o rw "${rootmnt}/home/user" "${rootmnt}/home/user.ro"
 if grep client /proc/cmdline > /dev/null; then
 	exit 0
 fi
-
-echo "union mounting ${rootmnt}/etc_server onto ${rootmnt}/etc"
-mount -t aufs -o "br=${rootmnt}/etc_server=rw:${rootmnt}/etc=ro" none "${rootmnt}/etc"
+if grep server /proc/cmdline > /dev/null; then
+	echo "union mounting ${rootmnt}/etc_server onto ${rootmnt}/etc"
+	mount -t aufs -o "br=${rootmnt}/etc_server=rw:${rootmnt}/etc=ro" none "${rootmnt}/etc"
+	exit 0
+fi
+#extra union for Digital Doorways
+if grep doorway /proc/cmdline > /dev/null; then
+	echo "union mounting ${rootmnt}/etc_doorway ${rootmnt}/etc_server onto ${rootmnt}/etc"
+	mount -t aufs -o "br=${rootmnt}/etc_doorway=rw:${rootmnt}/etc_server=ro:${rootmnt}/etc=ro" none "${rootmnt}/etc"
+fi
