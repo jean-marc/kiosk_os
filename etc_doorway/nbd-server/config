@@ -1,0 +1,9 @@
+[generic]
+user = nobody
+group = nogroup
+oldstyle = false
+
+[ltsp_i386]
+exportname = /opt/ltsp/images/i386.img
+readonly = true
+
