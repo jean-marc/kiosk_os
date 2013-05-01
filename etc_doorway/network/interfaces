@@ -5,7 +5,8 @@
 auto lo
 iface lo inet loopback
 
-auto eth0
+#auto eth0
+#started in /etc/rc.local instead because of bug in resolvconf
 iface eth0 inet dhcp
 	post-up iptables -A POSTROUTING -t nat -o eth0 -j MASQUERADE
 	post-down iptables -D POSTROUTING -t nat -o eth0 -j MASQUERADE
@@ -18,6 +19,9 @@ iface br0 inet static
 	netmask 255.255.255.0
 	broadcast 192.168.4.255
 	bridge-ports eth1 eth2
+	bridge_maxwait 0
+	bridge_fd 0
+	bridge_stp on
 	#HTTP traffic from LAN
 	post-up iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
 	post-down iptables -D PREROUTING -t nat -i eth0 -p tcp --dport 80 -j DNAT --to 192.168.4.1:3128
