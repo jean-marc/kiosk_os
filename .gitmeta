@@ -28,6 +28,7 @@ etc_doorway/nbd-server  mode=0755  uid=0  gid=0
 etc_doorway/nbd-server/config  mode=0644  uid=0  gid=0
 etc_doorway/network  mode=0755  uid=0  gid=0
 etc_doorway/network/interfaces  mode=0644  uid=0  gid=0
+etc_doorway/rc.local  mode=0755  uid=0  gid=0
 etc_original  mode=0755  uid=0  gid=0
 etc_original/fstab  mode=0644  uid=0  gid=0
 etc_original/hostname  mode=0644  uid=0  gid=0
