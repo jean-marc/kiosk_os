@@ -27,12 +27,14 @@ There are three extra /etc directories:
 
 1. [/etc_original](/etc_original): common to client and server
 2. [/etc_server](/etc_server): specific to server (daemon configuration,...) 
-3. [/etc_client](/etc_client): specific to NFS-mounted clients
+3. [/etc_doorway](/etc_doorway): specific to digital doorway (ltsp,...) 
+4. [/etc_client](/etc_client): specific to NFS-mounted clients
 
-The system relies on the above to set up two different configurations decided at boot time (through kernel parameter 'client'):
+The system relies on the above to set up three different configurations decided at boot time (through kernel parameter 'client'):
 
 1. client: no daemons (DHCP, Apache, ...),we  have ```/etc = /etc_original```.
 2. client + server: daemons are started, we have ```/etc = /etc_server + /etc_original```, where '+' means a union file system mount (/etc_server is mounted on top of /etc_original). Note: the client-only OS is still available at /client (it gets NFS-exported as defined in [/etc_server/exports](/etc_server/exports))
+3. client + server + doorway: daemons are started, we have ```/etc = /etc_doorway + /etc_server + /etc_original```, where '+' means a union file system mount (/etc_server is mounted on top of /etc_original). Note: the client-only OS is still available at /client (it gets NFS-exported as defined in [/etc_server/exports](/etc_server/exports))
 
 The union mount takes place early in the boot process through a customized initrd.img created with the initramfs tool (see [/etc_original/initramfs-tools/scripts/init-bottom/server](/etc_original/initramfs-tools/scripts/init-bottom/server) and [/etc_original/initramfs-tools/hooks/server](/etc_original/initramfs-tools/hooks/server)). This means that the OS is only usable as client-only when running in a chroot jail (unless it is possible to manually do a aufs mount in the root).
 
@@ -271,6 +273,8 @@ After any modification to the client OS (/opt/ltsp/i386/), the squashfs image ne
 Network time protocol is used to synchronize the clocks on remote machines, the default built in ntpdate only runs when the machine boots and will fail if no network is available.
 ntpd runs as a daemon.
 ```apt-get install ntp```
+
+##Initramfs
 
 ## Git specifics
 
