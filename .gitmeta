@@ -5,7 +5,7 @@ boot  mode=0755  uid=0  gid=0
 boot/grub/grub.cfg  mode=0644  uid=0  gid=0
 etc/apparmor.d  mode=0755  uid=0  gid=0
 etc  mode=0755  uid=0  gid=0
-etc/apparmor.d/usr.sbin.ntpd  mode=0644  uid=0  gid=0
+etc/apparmor.d/usr.sbin.ntpd  mode=0000  uid=  gid=
 etc_client  mode=0755  uid=0  gid=0
 etc_client/fstab  mode=0644  uid=0  gid=0
 etc_client/hosts  mode=0644  uid=0  gid=0
@@ -46,6 +46,9 @@ etc_server/apache2  mode=0755  uid=0  gid=0
 etc_server  mode=0755  uid=0  gid=0
 etc_server/apache2/sites-available/content.unicefuganda.org  mode=0644  uid=0  gid=0
 etc_server/apache2/sites-available/wikipedia.unicefuganda.org  mode=0644  uid=0  gid=0
+etc_server/apparmor.d/tunables  mode=0755  uid=0  gid=0
+etc_server/apparmor.d  mode=0755  uid=0  gid=0
+etc_server/apparmor.d/tunables/alias  mode=0644  uid=0  gid=0
 etc_server/cron.d  mode=0755  uid=0  gid=0
 etc_server/cron.d/modem_reconnect  mode=0644  uid=0  gid=0
 etc_server/dnsmasq.conf  mode=0644  uid=0  gid=0
