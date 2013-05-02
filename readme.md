@@ -17,8 +17,11 @@ Date:   Sat Mar 23 20:36:46 2013 +0300
 	some message...
 ``` 
 
-* query the version remotely (through VPN) so we can populate our management database with up-to-date information
-* update OS with ```git pull``` (note we could also do a blank file synchronization with rsync as long as we include /.git), if the file under source control is the configuration of application 'x', that application will have to be installed the usual way (apt-get install 'x')
+* query the version remotely (through VPN) so we could populate our management database with up-to-date information
+* update OS with ```git pull```, if the file under source control is the configuration of application 'x', that application will still have to be installed the usual way (apt-get install 'x'). Note that file synchronization with rsync is also an option but there are a few caveats:
+	*it needs to be carefully set (using '--exclude' statements) so we do not override log files and other site specific files
+	*it should not be done on a live system (there should be another installed OS used for synchronization purpose or PXE network boot)
+	*even after excluding subsets, it still uses a lot of bandwidth because the entire filesystem needs to be visited to detect file modification 
 * new branches can be created to run tests and merged in the main branch if successful 
 
 The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system.
@@ -30,20 +33,28 @@ There are three extra /etc directories:
 3. [/etc_doorway](/etc_doorway): specific to digital doorway (ltsp,...) 
 4. [/etc_client](/etc_client): specific to NFS-mounted clients
 
-The system relies on the above to set up three different configurations decided at boot time (through kernel parameter 'client'):
+The system relies on the above to set up three different configurations decided at boot time (through kernel parameter 'client', 'server' and 'doorway'):
 
 1. client: no daemons (DHCP, Apache, ...),we  have ```/etc = /etc_original```.
 2. client + server: daemons are started, we have ```/etc = /etc_server + /etc_original```, where '+' means a union file system mount (/etc_server is mounted on top of /etc_original). Note: the client-only OS is still available at /client (it gets NFS-exported as defined in [/etc_server/exports](/etc_server/exports))
-3. client + server + doorway: daemons are started, we have ```/etc = /etc_doorway + /etc_server + /etc_original```, where '+' means a union file system mount (/etc_server is mounted on top of /etc_original). Note: the client-only OS is still available at /client (it gets NFS-exported as defined in [/etc_server/exports](/etc_server/exports))
+3. client + server + doorway: same as above + LTSP daemons are started, we have ```/etc = /etc_doorway + /etc_server + /etc_original```, where '+' means a union file system mount.
 
 The union mount takes place early in the boot process through a customized initrd.img created with the initramfs tool (see [/etc_original/initramfs-tools/scripts/init-bottom/server](/etc_original/initramfs-tools/scripts/init-bottom/server) and [/etc_original/initramfs-tools/hooks/server](/etc_original/initramfs-tools/hooks/server)). This means that the OS is only usable as client-only when running in a chroot jail (unless it is possible to manually do a aufs mount in the root).
 
-Note that this file organization has consequences on apparmor because applications will attempt to access files at non-standard locations eg. /etc_server/passwd instead of /etc/passwd , those applications need to be authorized.  
+Note that this file organization has consequences on apparmor because applications will attempt to access files at non-standard locations eg. /etc_server/passwd instead of /etc/passwd , fortunately this can be fixed by defining aliases:
+```
+alias /etc/ -> /etc_server/,
+alias /etc/ -> /etc_doorway/,
+```
+in [/etc_server/apparmor.d/tunable/alias](/etc_server/apparmor.d/tunable/alias) and [/etc_doorway/apparmor.d/tunable/alias](/etc_doorway/apparmor.d/tunable/alias) .
+
 ##DHCP & TFTP
-Dnsmasq is used as a DHCP- and TFTP-server to send initrd.img for network boot.
+Dnsmasq is used as a DNS-, DHCP- and TFTP-server to send initrd.img for network boot.
 
 * [/etc_server/dnsmasq.conf](/etc_server/dnsmasq.conf)
 * [/var/ftpd/pxelinux.cfg/default](/var/ftpd/pxelinux.cfg/default)
+
+Note that in the 'doorway' configuration, the LTSP package comes with dhcpd and hpa-tftpd, dnsmasq in only used for DNS.
 
 ##Web Content
 The web server hosts 2 sites: http://content.unicefuganda.org and http://wikipedia.unicefuganda.org, first install apache and some dependencies:
@@ -256,7 +267,6 @@ Note that unicef_admin is a regular account but is reserved for administration.
 There is a provision to have older machines connect as client, they might not have enough CPU power or RAM to run the OS and applications, the solution is to place the burden on the server, the client just runs a graphical client (over ssh) but all the applications are run on the server see www.ltsp.org for more information on thin clients.
 
 ###Installation
-[/etc_server/dnsmasq.ltsp.conf](/etc_server/dnsmasq.ltsp.conf) ensures dnsmasq is only running as as a DNS server: no DHCP or TFTP 
 ```
 apt-get install ltsp-server-standalone
 ltsp-build-client --arch i386
@@ -265,8 +275,8 @@ useradd -m -s /bin/bash user_2
 ```
 The last command will download a minimum OS (i386) to run on the thin client.
 It uses the nbd(http://en.wikipedia.org/wiki/Network_block_device) protocol to export the minimum operating system (/opt/ltsp/images/i386.img) to the thin client, the clients then starts a graphic session on the server. 
-The problem is that now all the sessions are run by the same user 'user', it will confuse some applications (Firefox, Chrome,...), a simple solution is to set different accounts ('user_1','user_2') for each machine: see [/opt/ltsp/i386/etc/lts.conf](/opt/ltsp/i386/etc/lts.conf)
-After any modification to the client OS (/opt/ltsp/i386/), the squashfs image needs to be updated (ltsp-update-image -a i386).
+The problem is that now all the sessions are run by the same user 'user', it will confuse some applications (Firefox, Chrome,...), a simple solution is to set different accounts ('user_1','user_2') for each machine: see [/opt/ltsp/i386/etc/lts.conf](/opt/ltsp/i386/etc/lts.conf), note that those users live in /etc_doorway/passwd and are invisible in other configurations.
+After any modification to the client OS (/opt/ltsp/i386/), the squashfs image needs to be updated ```ltsp-update-image --arch i386```.
 
 ##NTP
 
@@ -276,6 +286,11 @@ ntpd runs as a daemon.
 
 ##Initramfs
 
+There are 3 different initrd.img files in the system
+1. /initrd.img -> /boot/initrd.img-3.0.0-12-generic, used by the server, sets up the different aufs configuratios
+2. /var/ftpd/initrd.img sent through PXE to the fat clients ('server' configuration)
+3. var/lib/tftpboot/ltsp/i386/initrd.img -> /var/lib/tftpboot/ltsp/initrd.img-3.0.0-31-generic, sent through PXE to the thin clients ('doorway' configuration)
+
 ## Git specifics
 
 The repository is hosted on github but also on our local server:
@@ -284,12 +299,14 @@ sudo git remote add origin_mbuya unicef_admin@monitor.unicefuganda.org:/srv/git/
 sudo git pull origin
 sudo git pull origin_mbuya master
 ```
+Alternatively, without defining a remote branch (convenient when working in chroot jail without DNS):
+```
+sudo git pull unicef_admin@10.11.6.1:/srv/git/kiosk_os.git master
+```
+
 This is convenient for incremental changes, rsync will still be necessary in case of new binary files (executables, media, database,...) 
 If there are no network connectivity the repository can be copied to a storage media and used instead:
 ```
 sudo git remote add origin_usb /media/usb/full/path/to/kiosk_os.git
 sudo git pull origin_usb master
 ```
-
-
-
