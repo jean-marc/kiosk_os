@@ -19,9 +19,9 @@ Date:   Sat Mar 23 20:36:46 2013 +0300
 
 * query the version remotely (through VPN) so we could populate our management database with up-to-date information
 * update OS with ```git pull```, if the file under source control is the configuration of application 'x', that application will still have to be installed the usual way (apt-get install 'x'). Note that file synchronization with rsync is also an option but there are a few caveats:
-	*it needs to be carefully set (using '--exclude' statements) so we do not override log files and other site specific files
-	*it should not be done on a live system (there should be another installed OS used for synchronization purpose or PXE network boot)
-	*even after excluding subsets, it still uses a lot of bandwidth because the entire filesystem needs to be visited to detect file modification 
+	* it needs to be carefully set (using '--exclude' statements) so we do not override log files and other site specific files
+	* it should not be done on a live system (there should be another installed OS used for synchronization purpose or PXE network boot)
+	* even after excluding subsets, it still uses a lot of bandwidth because the entire filesystem needs to be visited to detect file modification 
 * new branches can be created to run tests and merged in the main branch if successful 
 
 The server hosts the OS for the clients, so we only need to document the server OS to cover the whole system.
@@ -46,7 +46,7 @@ Note that this file organization has consequences on apparmor because applicatio
 alias /etc/ -> /etc_server/,
 alias /etc/ -> /etc_doorway/,
 ```
-in [/etc_server/apparmor.d/tunable/alias](/etc_server/apparmor.d/tunable/alias) and [/etc_doorway/apparmor.d/tunable/alias](/etc_doorway/apparmor.d/tunable/alias) .
+in [/etc_server/apparmor.d/tunables/alias](/etc_server/apparmor.d/tunables/alias) and [/etc_doorway/apparmor.d/tunables/alias](/etc_doorway/apparmor.d/tunables/alias) .
 
 ##DHCP & TFTP
 Dnsmasq is used as a DNS-, DHCP- and TFTP-server to send initrd.img for network boot.
