@@ -287,6 +287,7 @@ ntpd runs as a daemon.
 ##Initramfs
 
 There are 3 different initrd.img files in the system
+
 1. /initrd.img -> /boot/initrd.img-3.0.0-12-generic, used by the server, sets up the different aufs configuratios
 2. /var/ftpd/initrd.img sent through PXE to the fat clients ('server' configuration)
 3. var/lib/tftpboot/ltsp/i386/initrd.img -> /var/lib/tftpboot/ltsp/initrd.img-3.0.0-31-generic, sent through PXE to the thin clients ('doorway' configuration)
